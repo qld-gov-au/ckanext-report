@@ -23,7 +23,7 @@ data_cache_table = Table(
     Column('object_id', types.UnicodeText, index=True),
     Column('key', types.UnicodeText, nullable=False),
     Column('value', types.UnicodeText),
-    Column('created', types.DateTime, default=datetime.datetime.now),
+    Column('created', types.DateTime, default=datetime.datetime.utcnow),
 )
 Index('idx_data_cache_object_id_key', data_cache_table.c.object_id,
       data_cache_table.c.key)
