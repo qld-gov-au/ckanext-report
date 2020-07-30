@@ -4,7 +4,6 @@ import datetime
 import logging
 import json
 
-import pytz
 from sqlalchemy import types, Table, Column, Index, MetaData
 from sqlalchemy.orm import mapper
 
@@ -24,7 +23,7 @@ data_cache_table = Table(
     Column('object_id', types.UnicodeText, index=True),
     Column('key', types.UnicodeText, nullable=False),
     Column('value', types.UnicodeText),
-    Column('created', types.DateTime, default=datetime.datetime.now(tzinfo=pytz.utc)),
+    Column('created', types.DateTime, default=datetime.datetime.utcnow),
 )
 Index('idx_data_cache_object_id_key', data_cache_table.c.object_id,
       data_cache_table.c.key)
