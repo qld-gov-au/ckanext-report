@@ -37,8 +37,6 @@ jobs:
     needs: lint
     strategy:
       matrix:
-        # Not ready for 2.9 yet
-        # ckan-version: [2.9, 2.9-py2, 2.8]
         ckan-version: [2.8, 2.9-py2, 2.9]
       fail-fast: false
 
@@ -95,12 +93,5 @@ jobs:
         paster report initdb -c test.ini
 
     - name: Run all tests
-#      if: ${{ matrix.ckan-version != '2.7' && matrix.ckan-version != '2.8' }}
       run: |
         pytest --ckan-ini=test.ini --cov=ckanext.report ckanext/report/tests
-#
-#    - name: Run all tests (CKAN < 2.9)
-#      if: ${{ matrix.ckan-version == '2.7' || matrix.ckan-version == '2.8' }}
-#      run: |
-#        nosetests --ckan --nologcapture --with-pylons=test-nose.ini --with-coverage --cover-package=ckanext.report --cover-inclusive --cover-erase --cover-tests ckanext/report/tests/nose
-
