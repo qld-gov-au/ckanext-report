@@ -1,9 +1,18 @@
 from builtins import object
 import pytest
+import six
 
-from ckan.tests import helpers, factories
+from ckan.tests import factories
 
 import ckanext.report.model as report_model
+
+def body_contains(res, content):
+    try:
+        body = res.data
+    except AttributeError:
+        body = res.body
+    body = six.ensure_text(body)
+    return content in body
 
 @pytest.fixture
 def report_setup():
@@ -17,14 +26,14 @@ class TestReportPlugin(object):
         u"""Test report routes"""
         res = app.get(u'/report')
 
-        assert helpers.body_contains(res, u"Reports")
+        assert body_contains(res, u"Reports")
 
     def test_tagless_report_listed(self, app):
         u"""Test tagless report is listed on report page"""
         res = app.get(u'/report')
 
-        assert helpers.body_contains(res, u'Tagless datasets')
-        assert helpers.body_contains(res, u'href="/report/tagless-datasets"')
+        assert body_contains(res, u'Tagless datasets')
+        assert body_contains(res, u'href="/report/tagless-datasets"')
 
     def test_tagless_report(self,app):
         u"""Test tagless report generation"""
@@ -32,5 +41,5 @@ class TestReportPlugin(object):
 
         res = app.get(u'/report/tagless-datasets')
 
-        assert helpers.body_contains(res, u"Datasets which have no tags.")
-        assert helpers.body_contains(res, 'href="/dataset/' + dataset['name'] + '"')
+        assert body_contains(res, u"Datasets which have no tags.")
+        assert body_contains(res, 'href="/dataset/' + dataset['name'] + '"')
