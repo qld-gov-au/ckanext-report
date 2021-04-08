@@ -1,4 +1,6 @@
-from builtins import str
+# encoding: utf-8
+
+import six
 import json
 from flask import Blueprint, request
 
@@ -16,6 +18,7 @@ c = t.c
 
 report = Blueprint(u'report', __name__)
 
+
 def index():
     try:
         reports = t.get_action('report_list')({}, {})
@@ -23,6 +26,7 @@ def index():
         t.abort(401)
 
     return t.render('report/index.html', extra_vars={'reports': reports})
+
 
 def view(report_name, organization=None, refresh=False):
     try:
@@ -73,7 +77,6 @@ def view(report_name, organization=None, refresh=False):
             log.warn('Not displaying report option HTML for param %s as no template found')
             continue
 
-
     # Alternative way to refresh the cache - not in the UI, but is
     # handy for testing
     try:
@@ -117,7 +120,7 @@ def view(report_name, organization=None, refresh=False):
                 t.abort(401)
             filename = 'report_%s.csv' % key
             t.response.headers['Content-Type'] = 'application/csv'
-            t.response.headers['Content-Disposition'] = str('attachment; filename=%s' % (filename))
+            t.response.headers['Content-Disposition'] = six.text_type('attachment; filename=%s' % (filename))
             return make_csv_from_dicts(data['table'])
         elif format == 'json':
             t.response.headers['Content-Type'] = 'application/json'
@@ -138,9 +141,11 @@ def view(report_name, organization=None, refresh=False):
         'report_template': report['template'],
         'are_some_results': are_some_results})
 
+
 report.add_url_rule(u'/report', view_func=index)
 report.add_url_rule(u'/report/<report_name>', view_func=view)
 report.add_url_rule(u'/report/<report_name>/<organization>', view_func=view)
+
 
 def get_blueprints():
     return [report]

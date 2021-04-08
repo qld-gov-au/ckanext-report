@@ -6,6 +6,7 @@ from ckan.tests import factories
 
 import ckanext.report.model as report_model
 
+
 def body_contains(res, content):
     try:
         body = res.data
@@ -14,9 +15,11 @@ def body_contains(res, content):
     body = six.ensure_text(body)
     return content in body
 
+
 @pytest.fixture
 def report_setup():
     report_model.init_tables()
+
 
 @pytest.mark.ckan_config(u'ckan.plugins', u'report tagless_report')
 @pytest.mark.usefixtures(u'clean_db', u'with_plugins', u'report_setup')
@@ -35,7 +38,7 @@ class TestReportPlugin(object):
         assert body_contains(res, u'Tagless datasets')
         assert body_contains(res, u'href="/report/tagless-datasets"')
 
-    def test_tagless_report(self,app):
+    def test_tagless_report(self, app):
         u"""Test tagless report generation"""
         dataset = factories.Dataset()
 

@@ -1,5 +1,4 @@
 from __future__ import print_function
-import sys
 
 import ckan.plugins as p
 
@@ -73,7 +72,7 @@ class ReportCommand(p.toolkit.CkanCommand):
                     self.parser.error('Option needs an "=" sign in it: "%s"'
                                       % option_arg)
                 equal_pos = option_arg.find('=')
-                key, value = option_arg[:equal_pos], option_arg[equal_pos+1:]
+                key, value = option_arg[:equal_pos], option_arg[equal_pos + 1:]
                 if value == '':
                     value = None  # this is what the web i/f does with params
                 report_options[key] = value

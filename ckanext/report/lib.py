@@ -2,17 +2,17 @@
 These functions are for use by other extensions for their reports.
 '''
 from __future__ import division
-
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import zip
-from past.builtins import basestring
-from past.utils import old_div
-import datetime
 from collections import OrderedDict
+import datetime
+from future import standard_library
+from past.utils import old_div
+import six
+from six.moves import zip
 
 import ckan.plugins as p
+
+standard_library.install_aliases()
+
 
 def all_organizations(include_none=False):
     '''Yields all the organization names, and also None if requested. Useful
@@ -21,8 +21,8 @@ def all_organizations(include_none=False):
     if include_none:
         yield None
     organizations = model.Session.query(model.Group).\
-        filter(model.Group.type=='organization').\
-        filter(model.Group.state=='active').order_by('name')
+        filter(model.Group.type == 'organization').\
+        filter(model.Group.state == 'active').order_by('name')
     for organization in organizations:
         yield organization.name
 
@@ -47,7 +47,7 @@ def filter_by_organizations(query, organization, include_sub_organizations):
     from ckan import model
     if not organization:
         return query
-    if isinstance(organization, basestring):
+    if isinstance(organization, six.string_types):
         organization = model.Group.get(organization)
         assert organization
     if include_sub_organizations:
@@ -76,11 +76,11 @@ def percent(numerator, denominator):
         return 100 if numerator else 0
     return int(old_div((numerator * 100.0), denominator))
 
+
 def make_csv_from_dicts(rows):
     import csv
-    import io as StringIO
 
-    csvout = StringIO.StringIO()
+    csvout = six.StringIO()
     csvwriter = csv.writer(
         csvout,
         dialect='excel',
@@ -104,7 +104,7 @@ def make_csv_from_dicts(rows):
             if isinstance(item, datetime.datetime):
                 item = item.strftime('%Y-%m-%d %H:%M')
             elif isinstance(item, (int, int, float, list, tuple)):
-                item = str(item)
+                item = six.text_type(item)
             elif item is None:
                 item = ''
             else:

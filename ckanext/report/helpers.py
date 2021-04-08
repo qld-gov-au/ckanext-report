@@ -43,13 +43,13 @@ def relative_url_for(**kwargs):
 def chunks(list_, size):
     '''Splits up a given list into 'size' sized chunks.'''
     for i in range(0, len(list_), size):
-        yield list_[i:i+size]
+        yield list_[i:i + size]
 
 
 def organization_list():
     organizations = model.Session.query(model.Group).\
-        filter(model.Group.type=='organization').\
-        filter(model.Group.state=='active').order_by('title')
+        filter(model.Group.type == 'organization').\
+        filter(model.Group.state == 'active').order_by('title')
     for organization in organizations:
         yield (organization.name, organization.title)
 

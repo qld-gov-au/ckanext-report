@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
-import sqlalchemy
-import sqlalchemy.orm as orm
 import os
-
-from ckan.tests import helpers
 
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__))
 )
 
 try:
-    from ckan.tests.pytest_ckan.fixtures import *
+    from ckan.tests.pytest_ckan.fixtures import ckan_config
 
 except ImportError:
     import pytest
@@ -159,6 +155,7 @@ except ImportError:
         """
         with test_request_context():
             yield
+
 
 @pytest.fixture()
 def full_reset(reset_db):

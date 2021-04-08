@@ -1,12 +1,12 @@
-from builtins import str
-import datetime
+# encoding: utf-8
+
+import six
 
 from ckan.lib.helpers import json
 import ckan.plugins.toolkit as t
 import ckanext.report.helpers as helpers
 from ckanext.report.report_registry import Report
 from ckan.lib.render import TemplateNotFound
-from collections import OrderedDict
 from ckanext.report.lib import make_csv_from_dicts, ensure_data_is_dicts, anonymise_user_names
 
 log = __import__('logging').getLogger(__name__)
@@ -33,14 +33,14 @@ class ReportController(t.BaseController):
             t.abort(404)
 
         # ensure correct url is being used
-        if 'organization' in t.request.environ['pylons.routes_dict'] and \
-            'organization' not in report['option_defaults']:
-                t.redirect_to(helpers.relative_url_for(organization=None))
-        elif 'organization' not in t.request.environ['pylons.routes_dict'] and\
-            'organization' in report['option_defaults'] and \
-            report['option_defaults']['organization']:
-                org = report['option_defaults']['organization']
-                t.redirect_to(helpers.relative_url_for(organization=org))
+        if 'organization' in t.request.environ['pylons.routes_dict']\
+                and 'organization' not in report['option_defaults']:
+            t.redirect_to(helpers.relative_url_for(organization=None))
+        elif 'organization' not in t.request.environ['pylons.routes_dict']\
+                and 'organization' in report['option_defaults']\
+                and report['option_defaults']['organization']:
+            org = report['option_defaults']['organization']
+            t.redirect_to(helpers.relative_url_for(organization=org))
         if 'organization' in t.request.params:
             # organization should only be in the url - let the param overwrite
             # the url.
@@ -72,7 +72,6 @@ class ReportController(t.BaseController):
                 log.warn('Not displaying report option HTML for param %s as no template found')
                 continue
 
-
         # Alternative way to refresh the cache - not in the UI, but is
         # handy for testing
         try:
@@ -88,9 +87,9 @@ class ReportController(t.BaseController):
 
         if refresh:
             try:
-               t.get_action('report_refresh')({}, {'id': report_name, 'options': options})
+                t.get_action('report_refresh')({}, {'id': report_name, 'options': options})
             except t.NotAuthorized:
-               t.abort(401)
+                t.abort(401)
             # Don't want the refresh=1 in the url once it is done
             t.redirect_to(helpers.relative_url_for(refresh=None))
 
@@ -116,7 +115,7 @@ class ReportController(t.BaseController):
                     t.abort(401)
                 filename = 'report_%s.csv' % key
                 t.response.headers['Content-Type'] = 'application/csv'
-                t.response.headers['Content-Disposition'] = str('attachment; filename=%s' % (filename))
+                t.response.headers['Content-Disposition'] = six.text_type('attachment; filename=%s' % (filename))
                 return make_csv_from_dicts(data['table'])
             elif format == 'json':
                 t.response.headers['Content-Type'] = 'application/json'
@@ -136,4 +135,3 @@ class ReportController(t.BaseController):
             'options_html': options_html,
             'report_template': report['template'],
             'are_some_results': are_some_results})
-

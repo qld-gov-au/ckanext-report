@@ -14,6 +14,7 @@ except toolkit.CkanVersionException:
 else:
     from ckanext.report.plugin.flask_plugin import MixinPlugin
 
+
 class ReportPlugin(MixinPlugin, p.SingletonPlugin):
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IConfigurer)
@@ -36,7 +37,7 @@ class ReportPlugin(MixinPlugin, p.SingletonPlugin):
             'report__organization_list': h.organization_list,
             'report__render_datetime': h.render_datetime,
             'report__explicit_default_options': h.explicit_default_options,
-            }
+        }
 
     # IActions
     def get_actions(self):
@@ -67,4 +68,3 @@ class TaglessReportPlugin(p.SingletonPlugin):
     def register_reports(self):
         import ckanext.report.reports as reports
         return [reports.tagless_report_info]
-
