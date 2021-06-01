@@ -1,11 +1,13 @@
+import six
+from six.moves.builtins import object
 import logging
 import copy
 import re
 
-from paste.deploy.converters import asbool
+from ckan.plugins.toolkit import asbool
 
 from ckan import model
-from ckan.common import OrderedDict
+from collections import OrderedDict
 from ckanext.report.interfaces import IReport
 
 log = logging.getLogger(__name__)
@@ -25,7 +27,7 @@ class Report(object):
         assert not missing_required_keys, 'Report info dict missing keys %r: '\
             '%r' % (missing_required_keys, report_info_dict)
         unknown_keys = set(report_info_dict.keys()) - REPORT_KEYS_REQUIRED - \
-                       REPORT_KEYS_OPTIONAL
+            REPORT_KEYS_OPTIONAL
         assert not unknown_keys, 'Report info dict has unrecognized keys %r: '\
             '%r' % (unknown_keys, report_info_dict)
         if not report_info_dict['option_defaults']:
@@ -56,9 +58,9 @@ class Report(object):
                                         self.option_defaults[key])
             else:
                 value = option_dict[key]
-            if isinstance(value, basestring):
+            if isinstance(value, six.string_types):
                 try:
-                    value = str(value)
+                    value = six.text_type(value)
                 except UnicodeEncodeError:
                     value = value.encode('utf8')
             elif isinstance(value, bool):
@@ -76,7 +78,7 @@ class Report(object):
         '''Generates the report for all the option combinations and caches them.'''
         log.info('Report: %s %s', self.plugin, self.name)
         option_combinations = list(self.option_combinations()) \
-                              if self.option_combinations else [{}]
+            if self.option_combinations else [{}]
         for option_dict in option_combinations:
             self.refresh_cache(option_dict)
         log.info('  report done')
@@ -102,7 +104,7 @@ class Report(object):
         entity_name = extract_entity_name(option_dict)
         key = self.generate_key(option_dict)
         data, date = report_model.DataCache.get_if_fresh(
-                entity_name, key, convert_json=True)
+            entity_name, key, convert_json=True)
         if data is None:
             data, date = self.refresh_cache(option_dict)
         return data, date
@@ -130,11 +132,11 @@ class Report(object):
         '''
         defaulted_options = copy.deepcopy(defaults)
         for key in defaulted_options:
-            if not key in options:
+            if key not in options:
                 if defaulted_options[key] is True:
                     # Checkboxes don't submit a value when False, so cannot
                     # default to True. i.e. to get a True value, you always
-                    # need be expicit in the params.
+                    # need be explicit in the params.
                     defaulted_options[key] = False
                 continue
             value = options[key]
@@ -198,17 +200,17 @@ class ReportRegistry(object):
 
     def get_names(self):
         return [(r.plugin, r.name, r.title)
-                for r in sorted(self._reports.values(), key=lambda r: r.plugin)]
+                for r in sorted(list(self._reports.values()), key=lambda r: r.plugin)]
 
     def get_reports(self):
-        return sorted(self._reports.values(), key=lambda r: r.title)
+        return sorted(list(self._reports.values()), key=lambda r: r.title)
 
     def get_report(self, report_name):
         return self._reports[report_name]
 
     def refresh_cache_for_all_reports(self):
         '''Generates all the reports for all the option combinations and caches them.'''
-        for report in self._reports.values():
+        for report in list(self._reports.values()):
             report.refresh_cache_for_all_options()
 
 

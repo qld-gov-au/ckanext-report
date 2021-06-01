@@ -1,4 +1,4 @@
-import sys
+from __future__ import print_function
 
 import ckan.plugins as p
 
@@ -72,7 +72,7 @@ class ReportCommand(p.toolkit.CkanCommand):
                     self.parser.error('Option needs an "=" sign in it: "%s"'
                                       % option_arg)
                 equal_pos = option_arg.find('=')
-                key, value = option_arg[:equal_pos], option_arg[equal_pos+1:]
+                key, value = option_arg[:equal_pos], option_arg[equal_pos + 1:]
                 if value == '':
                     value = None  # this is what the web i/f does with params
                 report_options[key] = value
@@ -91,8 +91,8 @@ class ReportCommand(p.toolkit.CkanCommand):
         for plugin, report_name, report_title in registry.get_names():
             report = registry.get_report(report_name)
             date = report.get_cached_date()
-            print '%s: %s %s' % (plugin, report_name,
-                  date.strftime('%d/%m/%Y %H:%M') if date else '(not cached)')
+            print('%s: %s %s' % (plugin, report_name,
+                  date.strftime('%d/%m/%Y %H:%M') if date else '(not cached)'))
 
     def _generate(self, report_list=None):
         import time
