@@ -1,6 +1,5 @@
-from builtins import str
-from past.builtins import basestring
-from builtins import object
+import six
+from six.moves.builtins import object
 import logging
 import copy
 import re
@@ -59,9 +58,9 @@ class Report(object):
                                         self.option_defaults[key])
             else:
                 value = option_dict[key]
-            if isinstance(value, basestring):
+            if isinstance(value, six.string_types):
                 try:
-                    value = str(value)
+                    value = six.text_type(value)
                 except UnicodeEncodeError:
                     value = value.encode('utf8')
             elif isinstance(value, bool):

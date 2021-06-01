@@ -1,4 +1,4 @@
-from builtins import range
+from six.moves import range
 from ckanext.report.report_registry import ReportRegistry
 from ckan.plugins import toolkit as tk
 import ckan.lib.helpers

@@ -1,6 +1,6 @@
-from builtins import object
 import pytest
 import six
+from six.moves.builtins import object
 
 from ckan.tests import factories
 
