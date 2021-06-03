@@ -85,4 +85,4 @@ jobs:
 
     - name: Run all tests
       run: |
-        nosetests --ckan-ini=test.ini --cov=ckanext.report ckanext/report/tests
+        nosetests --with-pylons=test.ini --cov=ckanext.report ckanext/report/tests
