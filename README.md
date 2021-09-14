@@ -1,4 +1,6 @@
-# ckanext-report
+[![Tests](https://github.com/qld-gov-au/ckanext-report/actions/workflows/test.yml/badge.svg)](https://github.com/qld-gov-au/ckanext-report/actions/workflows/test.yml)
+ckanext-report
+====================
 
 ckanext-report is a CKAN extension that provides a reporting infrastructure. Here are the features offered:
 
