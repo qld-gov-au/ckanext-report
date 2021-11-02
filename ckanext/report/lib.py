@@ -1,6 +1,7 @@
 '''
 These functions are for use by other extensions for their reports.
 '''
+import six
 
 import ckan.plugins as p
 
@@ -12,8 +13,8 @@ def all_organizations(include_none=False):
     if include_none:
         yield None
     organizations = model.Session.query(model.Group).\
-        filter(model.Group.type=='organization').\
-        filter(model.Group.state=='active').order_by('name')
+        filter(model.Group.type == 'organization').\
+        filter(model.Group.state == 'active').order_by('name')
     for organization in organizations:
         yield organization.name
 
@@ -38,7 +39,7 @@ def filter_by_organizations(query, organization, include_sub_organizations):
     from ckan import model
     if not organization:
         return query
-    if isinstance(organization, basestring):
+    if isinstance(organization, six.string_types):
         organization = model.Group.get(organization)
         assert organization
     if include_sub_organizations:

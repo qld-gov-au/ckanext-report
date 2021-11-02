@@ -6,6 +6,7 @@ import ckanext.report.logic.action.update as action_update
 import ckanext.report.logic.auth.get as auth_get
 import ckanext.report.logic.auth.update as auth_update
 
+
 class ReportPlugin(p.SingletonPlugin):
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IConfigurer)
@@ -41,7 +42,7 @@ class ReportPlugin(p.SingletonPlugin):
             'report__organization_list': h.organization_list,
             'report__render_datetime': h.render_datetime,
             'report__explicit_default_options': h.explicit_default_options,
-            }
+        }
 
     # IActions
     def get_actions(self):
@@ -72,4 +73,3 @@ class TaglessReportPlugin(p.SingletonPlugin):
     def register_reports(self):
         import reports
         return [reports.tagless_report_info]
-
