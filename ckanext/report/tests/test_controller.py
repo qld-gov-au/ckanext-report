@@ -2,6 +2,7 @@
 
 from nose.tools import (assert_equal,
                         assert_in,
+                        assert_regexp_matches,
                         with_setup)
 
 from ckan.tests import helpers
@@ -16,7 +17,7 @@ class TestController():
 
     def test_report_index(self):
         response = self.app.get('/report', status=200)
-        assert_in('Reports', response.html.head.title)
+        assert_regexp_matches('Reports', response.html.head.title)
 
     def test_report_index_redirect(self):
         response = self.app.get('/reports', status=[301, 302])
