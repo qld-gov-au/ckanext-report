@@ -20,4 +20,4 @@ class TestController():
 
     def test_report_index_redirect(self):
         response = self.app.get('/reports', status=[301, 302])
-        assert_equal(response.location.split('/')[2], 'report')
+        assert_equal(response.location.split('/')[3], 'report')
