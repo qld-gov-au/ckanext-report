@@ -27,6 +27,7 @@ class Reporting():
         from ckanext.report.report_registry import ReportRegistry
         timings = {}
 
+        self.log.info("Running reports => %s", report_list)
         registry = ReportRegistry.instance()
         if report_list:
             for report_name in report_list:
@@ -42,6 +43,7 @@ class Reporting():
 
     def generate_for_options(self, report_name, options):
         from ckanext.report.report_registry import ReportRegistry
+        self.log.info("Running report => %s", report_name)
         registry = ReportRegistry.instance()
         report = registry.get_report(report_name)
         all_options = report.add_defaults_to_options(options,

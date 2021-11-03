@@ -65,7 +65,6 @@ class ReportCommand(p.toolkit.CkanCommand):
             report_list = None
             if len(self.args) == 2:
                 report_list = [s.strip() for s in self.args[1].split(',')]
-                self.log.info("Running reports => %s", report_list)
             reporter.generate(report_list)
         elif cmd == 'generate-for-options':
             report_name = self.args[1]
