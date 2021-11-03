@@ -7,7 +7,7 @@ from ckanext.report.cli.command import Reporting
 # Click commands for CKAN 2.9 and above
 
 
-@click.group(short_help='Perform Report related actions')
+@click.group()
 def report():
     """ XLoader commands
     """
