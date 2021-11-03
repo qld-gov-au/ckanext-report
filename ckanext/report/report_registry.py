@@ -1,12 +1,13 @@
+# encoding: utf-8
+
 import logging
 import copy
 import re
 import six
 
-from paste.deploy.converters import asbool
-
 from ckan import model
 from ckan.common import OrderedDict
+from ckan.plugins.toolkit import asbool
 from ckanext.report.interfaces import IReport
 
 log = logging.getLogger(__name__)
