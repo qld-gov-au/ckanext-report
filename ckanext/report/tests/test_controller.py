@@ -16,7 +16,7 @@ class TestController():
 
     def test_report_index(self):
         response = self.app.get('/report', status=[200])
-        assert_true('Report' in response.data)
+        assert_equal('Report', response.html.head.title)
 
     def test_report_index_redirect(self):
         response = self.app.get('/reports', status=[301, 302])
