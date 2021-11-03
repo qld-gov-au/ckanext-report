@@ -3,8 +3,11 @@ Working examples - simple tag report.
 '''
 
 from ckan import model
-from ckan.common import OrderedDict
 from ckanext.report import lib
+try:
+    from collections import OrderedDict  # from python 2.7
+except ImportError:
+    from sqlalchemy.util import OrderedDict
 
 
 def tagless_report(organization, include_sub_organizations=False):

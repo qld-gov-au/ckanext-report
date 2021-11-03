@@ -6,9 +6,12 @@ import re
 import six
 
 from ckan import model
-from ckan.common import OrderedDict
 from ckan.plugins.toolkit import asbool
 from ckanext.report.interfaces import IReport
+try:
+    from collections import OrderedDict  # from python 2.7
+except ImportError:
+    from sqlalchemy.util import OrderedDict
 
 log = logging.getLogger(__name__)
 

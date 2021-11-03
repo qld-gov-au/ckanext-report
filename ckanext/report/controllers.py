@@ -8,8 +8,10 @@ import ckan.plugins.toolkit as t
 import ckanext.report.helpers as helpers
 from ckanext.report.report_registry import Report
 from ckan.lib.render import TemplateNotFound
-from ckan.common import OrderedDict
-
+try:
+    from collections import OrderedDict  # from python 2.7
+except ImportError:
+    from sqlalchemy.util import OrderedDict
 
 log = __import__('logging').getLogger(__name__)
 
