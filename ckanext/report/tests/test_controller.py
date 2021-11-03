@@ -15,7 +15,7 @@ def _get_response_body(response):
     ''' Extract the response body of a Webtest or Flask response as text.
     '''
     if hasattr(response, 'html'):
-        return response.html.string
+        return response.html.renderContents()
     elif hasattr(response, 'get_data'):
         return response.get_data(as_text=True)
     else:
