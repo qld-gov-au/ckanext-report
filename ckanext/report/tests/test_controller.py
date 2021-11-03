@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from nose.tools import (assert_equal,
+                        assert_true,
                         with_setup)
 
 from ckan.tests import helpers
@@ -14,8 +15,9 @@ def _setup_function(self):
 class TestController():
 
     def test_report_index(self):
-        self.app.get('/report', status=[200])
+        response = self.app.get('/report', status=[200])
+        assert_true('Report' in response.data)
 
     def test_report_index_redirect(self):
-        r = self.app.get('/reports', status=[301, 302])
-        assert_equal(r.location, '/report')
+        response = self.app.get('/reports', status=[301, 302])
+        assert_equal(response.location.split('/')[2], 'report')
