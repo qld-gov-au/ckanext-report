@@ -21,8 +21,8 @@ class ReportPlugin(p.SingletonPlugin):
 
         # IClick
         def get_commands(self):
-            from ckanext.report.cli import click
-            return click.get_commands()
+            from ckanext.report.cli import click_cli
+            return click_cli.get_commands()
 
     # IRoutes
 
