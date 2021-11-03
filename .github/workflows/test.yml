@@ -88,7 +88,7 @@ jobs:
 
       - name: Run tests (CKAN >= 2.9)
         if: ${{ matrix.ckan-version != '2.7' && matrix.ckan-version != '2.8' }}
-        run: pytest --ckan-ini=test.ini --cov=ckanext.report --disable-warnings tests
+        run: pytest --ckan-ini=test.ini --cov=ckanext.report --disable-warnings ckanext/report/tests
       - name: Run tests (CKAN < 2.9)
         if: ${{ matrix.ckan-version == '2.7' || matrix.ckan-version == '2.8' }}
         run: nosetests --with-pylons=test.ini --cover-package=ckanext.report ckanext/report/tests
