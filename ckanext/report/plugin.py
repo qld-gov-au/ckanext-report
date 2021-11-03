@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import ckan.plugins as p
 from ckanext.report.interfaces import IReport
 
@@ -13,6 +15,14 @@ class ReportPlugin(p.SingletonPlugin):
     p.implements(p.ITemplateHelpers)
     p.implements(p.IActions, inherit=True)
     p.implements(p.IAuthFunctions, inherit=True)
+
+    if p.toolkit.check_ckan_version('2.9'):
+        p.implements(p.IClick)
+
+        # IClick
+        def get_commands(self):
+            from ckanext.report.cli import click
+            return click.get_commands()
 
     # IRoutes
 
