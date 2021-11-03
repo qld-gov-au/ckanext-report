@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import ckan.plugins as p
+from ckanext.report import views
 from ckanext.report.interfaces import IReport
 
 import ckanext.report.logic.action.get as action_get
@@ -10,19 +11,28 @@ import ckanext.report.logic.auth.update as auth_update
 
 
 class ReportPlugin(p.SingletonPlugin):
-    p.implements(p.IRoutes, inherit=True)
     p.implements(p.IConfigurer)
     p.implements(p.ITemplateHelpers)
     p.implements(p.IActions, inherit=True)
     p.implements(p.IAuthFunctions, inherit=True)
 
     if p.toolkit.check_ckan_version('2.9'):
+        p.implements(p.IBlueprint)
         p.implements(p.IClick)
 
+        # IBlueprint
+
+        def get_blueprint(self):
+            return views.get_blueprints()
+
         # IClick
+
         def get_commands(self):
             from ckanext.report.cli import click_cli
             return click_cli.get_commands()
+
+    else:
+        p.implements(p.IRoutes, inherit=True)
 
     # IRoutes
 
