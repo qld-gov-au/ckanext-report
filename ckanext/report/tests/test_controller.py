@@ -17,7 +17,7 @@ class TestController():
 
     def test_report_index(self):
         response = self.app.get('/report', status=200)
-        assert_regexp_matches('Reports', response.html.head.title)
+        assert_regexp_matches(response.html.head.title, 'Reports')
 
     def test_report_index_redirect(self):
         response = self.app.get('/reports', status=[301, 302])
