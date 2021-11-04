@@ -30,5 +30,5 @@ class TestController():
         assert_in('<title>Reports', _get_response_body(response))
 
     def test_report_index_redirect(self):
-        response = self.app.get('/reports', status=[301, 302])
+        response = self.app.get('/reports', follow_redirects=False, status=[301, 302])
         assert_equal(response.location.split('/')[3], 'report')
