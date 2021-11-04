@@ -1,6 +1,8 @@
-import sys
+# encoding: utf-8
 
 import ckan.plugins as p
+
+from ckanext.report.cli.command import Reporting
 
 
 class ReportCommand(p.toolkit.CkanCommand):
@@ -54,16 +56,16 @@ class ReportCommand(p.toolkit.CkanCommand):
         self.log = logging.getLogger("ckan.lib.cli")
 
         cmd = self.args[0]
+        reporter = Reporting()
         if cmd == 'initdb':
-            self._initdb()
+            reporter.initdb()
         elif cmd == 'list':
-            self._list()
+            reporter.list()
         elif cmd == 'generate':
             report_list = None
             if len(self.args) == 2:
                 report_list = [s.strip() for s in self.args[1].split(',')]
-                self.log.info("Running reports => %s", report_list)
-            self._generate(report_list)
+            reporter.generate(report_list)
         elif cmd == 'generate-for-options':
             report_name = self.args[1]
             report_options = {}
@@ -72,50 +74,10 @@ class ReportCommand(p.toolkit.CkanCommand):
                     self.parser.error('Option needs an "=" sign in it: "%s"'
                                       % option_arg)
                 equal_pos = option_arg.find('=')
-                key, value = option_arg[:equal_pos], option_arg[equal_pos+1:]
+                key, value = option_arg[:equal_pos], option_arg[equal_pos + 1:]
                 if value == '':
                     value = None  # this is what the web i/f does with params
                 report_options[key] = value
-            self._generate_for_options(report_name, report_options)
+            reporter.generate_for_options(report_name, report_options)
         else:
             self.parser.error('Command not recognized: %r' % cmd)
-
-    def _initdb(self):
-        from ckanext.report import model as report_model
-        report_model.init_tables()
-        self.log.info('Report table is setup')
-
-    def _list(self):
-        from ckanext.report.report_registry import ReportRegistry
-        registry = ReportRegistry.instance()
-        for plugin, report_name, report_title in registry.get_names():
-            report = registry.get_report(report_name)
-            date = report.get_cached_date()
-            print '%s: %s %s' % (plugin, report_name,
-                  date.strftime('%d/%m/%Y %H:%M') if date else '(not cached)')
-
-    def _generate(self, report_list=None):
-        import time
-        from ckanext.report.report_registry import ReportRegistry
-        timings = {}
-
-        registry = ReportRegistry.instance()
-        if report_list:
-            for report_name in report_list:
-                s = time.time()
-                registry.get_report(report_name).refresh_cache_for_all_options()
-                timings[report_name] = time.time() - s
-        else:
-            s = time.time()
-            registry.refresh_cache_for_all_reports()
-            timings["All Reports"] = time.time() - s
-
-        self.log.info("Report generation complete %s", timings)
-
-    def _generate_for_options(self, report_name, options):
-        from ckanext.report.report_registry import ReportRegistry
-        registry = ReportRegistry.instance()
-        report = registry.get_report(report_name)
-        all_options = report.add_defaults_to_options(options,
-                                                     report.option_defaults)
-        report.refresh_cache(all_options)

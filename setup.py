@@ -8,7 +8,7 @@ setup(
     description="Framework for defining reports in CKAN",
     long_description='''
     ''',
-    classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    classifiers=[],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords='',
     author='David Read',
     author_email='david.read@hackneyworkshop.com',
@@ -27,6 +27,6 @@ setup(
         tagless_report = ckanext.report.plugin:TaglessReportPlugin
 
         [paste.paster_command]
-        report = ckanext.report.command:ReportCommand
+        report = ckanext.report.cli.paster_cli:ReportCommand
     ''',
 )

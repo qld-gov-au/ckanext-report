@@ -8,7 +8,10 @@ from sqlalchemy import types, Table, Column, Index, MetaData
 from sqlalchemy.orm import mapper
 
 from ckan import model
-from ckan.common import OrderedDict
+try:
+    from collections import OrderedDict  # from python 2.7
+except ImportError:
+    from sqlalchemy.util import OrderedDict
 
 log = logging.getLogger(__name__)
 
@@ -62,7 +65,7 @@ class DataCache(object):
     """
 
     def __init__(self, **kwargs):
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             setattr(self, k, v)
 
     @classmethod
@@ -76,7 +79,7 @@ class DataCache(object):
                     .filter(cls.object_id == object_id)\
                     .first()
         if not item:
-            #log.debug('Does not exist in cache: %s/%s', object_id, key)
+            # log.debug('Does not exist in cache: %s/%s', object_id, key)
             return (None, None)
 
         if max_age:
@@ -88,18 +91,16 @@ class DataCache(object):
 
         value = item.value
         if convert_json:
-            # Use OrderedDict instead of dict, so that the order of the columns
-            # in the data is preserved from the data when it was written (assuming
-            # it was written as an OrderedDict in the report's code).
+            # Preserve the order of the columns in the data
             try:
                 # Python 2.7's json library has object_pairs_hook
                 import json
                 value = json.loads(value, object_pairs_hook=OrderedDict)
-            except TypeError: # Untested
+            except TypeError:  # Untested
                 # Python 2.4-2.6
                 import simplejson as json
                 value = json.loads(value, object_pairs_hook=OrderedDict)
-        #log.debug('Cache load: %s/%s "%s"...', object_id, key, repr(value)[:40])
+        # log.debug('Cache load: %s/%s "%s"...', object_id, key, repr(value)[:40])
         return value, item.created
 
     @classmethod
@@ -131,7 +132,9 @@ class DataCache(object):
         model.Session.flush()
         return item.created
 
+
 mapper(DataCache, data_cache_table)
+
 
 def init_tables():
     metadata.create_all(model.meta.engine)
