@@ -17,7 +17,7 @@ c = t.c
 
 def _get_routing_rule():
     if hasattr(request, 'url_rule'):
-        return request.url_rule
+        return request.url_rule.rule
     elif hasattr(request, 'environ'):
         return request.environ.get('pylons.routes_dict')
 
