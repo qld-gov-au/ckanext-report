@@ -9,7 +9,7 @@ class MixinPlugin(p.SingletonPlugin):
     # IRoutes
 
     def before_map(self, map):
-        report_ctlr = 'ckanext.report.controllers.pylons_controller:ReportController'
+        report_ctlr = 'ckanext.report.controllers.pylons_controllers:ReportController'
         map.connect('report.index', '/report', controller=report_ctlr, action='index')
         map.connect('reports', '/report', controller=report_ctlr,
                     action='index')
