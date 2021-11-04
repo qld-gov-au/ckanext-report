@@ -8,13 +8,7 @@ from ckan.plugins import toolkit
 
 reporting = Blueprint(
     u'report',
-    __name__,
-    url_prefix=u'/report'
-)
-reporting_redirect = Blueprint(
-    u'reports',
-    __name__,
-    url_prefix=u'/reports'
+    __name__
 )
 
 
@@ -23,19 +17,17 @@ def redirect_to_index():
 
 
 reporting.add_url_rule(
-    u'/', view_func=report_index
+    u'/report', view_func=report_index
 )
 reporting.add_url_rule(
-    u'/<report_name>', view_func=report_view
+    u'/reports', view_func=redirect_to_index
 )
 reporting.add_url_rule(
-    u'/<report_name>/<organization>', view_func=report_view
+    u'/report/<report_name>', view_func=report_view
 )
-
-reporting_redirect.add_url_rule(
-    u'/', view_func=redirect_to_index
+reporting.add_url_rule(
+    u'/report/<report_name>/<organization>', view_func=report_view
 )
-
 
 def get_blueprints():
     return [reporting]

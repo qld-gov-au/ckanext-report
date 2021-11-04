@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import ckan.plugins as p
+from ckan.plugins import toolkit
 from ckanext.report import views
 from ckanext.report.interfaces import IReport
 
@@ -10,13 +11,21 @@ import ckanext.report.logic.auth.get as auth_get
 import ckanext.report.logic.auth.update as auth_update
 
 
-class ReportPlugin(p.SingletonPlugin):
+try:
+    toolkit.requires_ckan_version("2.9")
+except toolkit.CkanVersionException:
+    from ckanext.report.plugin.pylons_plugin import MixinPlugin
+else:
+    from ckanext.report.plugin.flask_plugin import MixinPlugin
+
+
+class ReportPlugin(MixinPlugin, p.SingletonPlugin):
     p.implements(p.IConfigurer)
     p.implements(p.ITemplateHelpers)
     p.implements(p.IActions, inherit=True)
     p.implements(p.IAuthFunctions, inherit=True)
 
-    if p.toolkit.check_ckan_version('2.9'):
+    if toolkit.check_ckan_version('2.9'):
         p.implements(p.IBlueprint)
         p.implements(p.IClick)
 
