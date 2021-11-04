@@ -66,5 +66,5 @@ class TaglessReportPlugin(p.SingletonPlugin):
     # IReport
 
     def register_reports(self):
-        import reports
+        from ckanext.report import reports
         return [reports.tagless_report_info]
