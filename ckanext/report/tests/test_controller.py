@@ -30,4 +30,4 @@ class TestController():
 
     def test_report_view(self):
         response = self.app.get('/report/tagless-datasets', status=200)
-        assert_in('<title>Reports', _get_response_body(response))
+        assert_in('<title>Tagless datasets', _get_response_body(response))
