@@ -2,7 +2,6 @@
 
 import ckan.plugins as p
 from ckan.plugins import toolkit
-from ckanext.report import views
 from ckanext.report.interfaces import IReport
 
 import ckanext.report.logic.action.get as action_get
@@ -25,41 +24,10 @@ class ReportPlugin(MixinPlugin, p.SingletonPlugin):
     p.implements(p.IActions, inherit=True)
     p.implements(p.IAuthFunctions, inherit=True)
 
-    if toolkit.check_ckan_version('2.9'):
-        p.implements(p.IBlueprint)
-        p.implements(p.IClick)
-
-        # IBlueprint
-
-        def get_blueprint(self):
-            return views.get_blueprints()
-
-        # IClick
-
-        def get_commands(self):
-            from ckanext.report.cli import click_cli
-            return click_cli.get_commands()
-
-    else:
-        p.implements(p.IRoutes, inherit=True)
-
-    # IRoutes
-
-    def before_map(self, map):
-        report_ctlr = 'ckanext.report.controllers:ReportController'
-        map.connect('reports', '/report', controller=report_ctlr,
-                    action='index')
-        map.redirect('/reports', '/report')
-        map.connect('report', '/report/:report_name', controller=report_ctlr,
-                    action='view')
-        map.connect('report-org', '/report/:report_name/:organization',
-                    controller=report_ctlr, action='view')
-        return map
-
     # IConfigurer
 
     def update_config(self, config):
-        p.toolkit.add_template_directory(config, 'templates')
+        toolkit.add_template_directory(config, 'templates')
 
     # ITemplateHelpers
 
