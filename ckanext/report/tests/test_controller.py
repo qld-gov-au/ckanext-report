@@ -1,7 +1,6 @@
 # encoding: utf-8
 
-from nose.tools import (assert_equal,
-                        assert_in,
+from nose.tools import (assert_in,
                         with_setup)
 
 from ckan.tests import helpers
@@ -31,4 +30,4 @@ class TestController():
 
     def test_report_view(self):
         response = self.app.get('/report/tagless-datasets', status=200)
-        assert_equal(response.location.split('/')[3], 'report')
+        assert_in('<title>Reports', _get_response_body(response))
