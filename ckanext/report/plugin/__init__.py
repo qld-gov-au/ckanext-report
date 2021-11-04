@@ -10,7 +10,7 @@ import ckanext.report.logic.auth.get as auth_get
 import ckanext.report.logic.auth.update as auth_update
 
 
-if toolkit.check_ckan_version("2.9")
+if toolkit.check_ckan_version("2.9"):
     from ckanext.report.plugin.flask_plugin import MixinPlugin
 else:
     from ckanext.report.plugin.pylons_plugin import MixinPlugin

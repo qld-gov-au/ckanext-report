@@ -29,5 +29,6 @@ reporting.add_url_rule(
     u'/report/<report_name>/<organization>', view_func=report_view
 )
 
+
 def get_blueprints():
     return [reporting]
