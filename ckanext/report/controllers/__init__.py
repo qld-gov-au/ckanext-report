@@ -211,12 +211,3 @@ def _anonymise_user_names(data, organization=None):
             for row in data['table']:
                 row[col] = dguhelpers.user_link_info(
                     row[col], organization=organization)[0]
-
-
-class ReportController(t.BaseController):
-
-    def index(self):
-        return report_index()
-
-    def view(self, report_name, organization=None, refresh=False):
-        return report_view(report_name, organization, refresh)
