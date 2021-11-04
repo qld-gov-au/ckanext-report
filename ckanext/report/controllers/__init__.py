@@ -2,6 +2,7 @@
 
 import six
 
+from ckan.common import request
 from ckan.lib.helpers import json
 from ckan.lib.render import TemplateNotFound
 import ckan.plugins.toolkit as t
@@ -12,6 +13,13 @@ from ckanext.report.report_registry import Report
 log = __import__('logging').getLogger(__name__)
 
 c = t.c
+
+
+def _get_routing_rule():
+    if hasattr(request, 'url_rule'):
+        return request.url_rule
+    elif hasattr(request, 'environ'):
+        return request.environ.get('pylons.routes_dict')
 
 
 def report_index():
@@ -32,12 +40,12 @@ def report_view(report_name, organization=None, refresh=False):
         t.abort(404)
 
     # ensure correct url is being used
-    if 'organization' in t.request.environ['pylons.routes_dict'] and \
-            'organization' not in report['option_defaults']:
+    if 'organization' in _get_routing_rule()\
+            and 'organization' not in report['option_defaults']:
         t.redirect_to(helpers.relative_url_for(organization=None))
-    elif 'organization' not in t.request.environ['pylons.routes_dict'] and\
-            'organization' in report['option_defaults'] and \
-            report['option_defaults']['organization']:
+    elif 'organization' not in _get_routing_rule()\
+            and 'organization' in report['option_defaults']\
+            and report['option_defaults']['organization']:
         org = report['option_defaults']['organization']
         t.redirect_to(helpers.relative_url_for(organization=org))
     if 'organization' in t.request.params:
@@ -114,7 +122,7 @@ def report_view(report_name, organization=None, refresh=False):
                 t.abort(401)
             filename = 'report_%s.csv' % key
             t.response.headers['Content-Type'] = 'application/csv'
-            t.response.headers['Content-Disposition'] = six.binary_type('attachment; filename=%s' % (filename))
+            t.response.headers['Content-Disposition'] = six.text_type('attachment; filename=%s' % (filename))
             return make_csv_from_dicts(data['table'])
         elif format == 'json':
             t.response.headers['Content-Type'] = 'application/json'
