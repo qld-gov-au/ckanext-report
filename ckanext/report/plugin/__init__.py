@@ -10,12 +10,10 @@ import ckanext.report.logic.auth.get as auth_get
 import ckanext.report.logic.auth.update as auth_update
 
 
-try:
-    toolkit.requires_ckan_version("2.9")
-except toolkit.CkanVersionException:
-    from ckanext.report.plugin.pylons_plugin import MixinPlugin
-else:
+if toolkit.check_ckan_version("2.9")
     from ckanext.report.plugin.flask_plugin import MixinPlugin
+else:
+    from ckanext.report.plugin.pylons_plugin import MixinPlugin
 
 
 class ReportPlugin(MixinPlugin, p.SingletonPlugin):
@@ -27,7 +25,7 @@ class ReportPlugin(MixinPlugin, p.SingletonPlugin):
     # IConfigurer
 
     def update_config(self, config):
-        toolkit.add_template_directory(config, 'templates')
+        toolkit.add_template_directory(config, '../templates')
 
     # ITemplateHelpers
 
