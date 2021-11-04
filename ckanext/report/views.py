@@ -17,16 +17,16 @@ def redirect_to_index():
 
 
 reporting.add_url_rule(
-    u'/report', view_func=report_index
+    u'/report', 'index', view_func=report_index
 )
 reporting.add_url_rule(
-    u'/reports', view_func=redirect_to_index
+    u'/reports', 'reports', view_func=redirect_to_index
 )
 reporting.add_url_rule(
-    u'/report/<report_name>', view_func=report_view
+    u'/report/<report_name>', 'view', view_func=report_view
 )
 reporting.add_url_rule(
-    u'/report/<report_name>/<organization>', view_func=report_view
+    u'/report/<report_name>/<organization>', 'org', view_func=report_view
 )
 
 
