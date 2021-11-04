@@ -126,3 +126,22 @@ def ensure_data_is_dicts(data):
             new_data.append(OrderedDict(list(zip(columns, row))))
         data['table'] = new_data
         del data['columns']
+
+
+def anonymise_user_names(data, organization=None):
+    '''Ensure any columns with names in are anonymised, unless the current user
+    has privileges.
+
+    NB this is only enabled for data.gov.uk - it is custom functionality.
+    '''
+    try:
+        import ckanext.dgu.lib.helpers as dguhelpers
+    except ImportError:
+        # If this is not DGU then cannot do the anonymization
+        return
+    column_names = list(data['table'][0].keys()) if data['table'] else []
+    for col in column_names:
+        if col.lower() in ('user', 'username', 'user name', 'author'):
+            for row in data['table']:
+                row[col] = dguhelpers.user_link_info(
+                    row[col], organization=organization)[0]
