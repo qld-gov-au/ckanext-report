@@ -16,8 +16,10 @@ def tagless_report(organization, include_sub_organizations=False):
     Returns something like this:
         {
          'table': [
-            {'name': 'river-levels', 'title': 'River levels', 'notes': 'Harvested', 'user': 'bob', 'created': '2008-06-13T10:24:59.435631'},
-            {'name': 'co2-monthly', 'title' 'CO2 monthly', 'notes': '', 'user': 'bob', 'created': '2009-12-14T08:42:45.473827'},
+            {'name': 'river-levels', 'title': 'River levels', 'notes': 'Harvested',
+             'user': 'bob', 'created': '2008-06-13T10:24:59.435631'},
+            {'name': 'co2-monthly', 'title' 'CO2 monthly', 'notes': '',
+             'user': 'bob', 'created': '2009-12-14T08:42:45.473827'},
             ],
          'num_packages': 56,
          'packages_without_tags_percent': 4,

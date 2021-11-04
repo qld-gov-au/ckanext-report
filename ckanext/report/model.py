@@ -65,7 +65,7 @@ class DataCache(object):
     """
 
     def __init__(self, **kwargs):
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             setattr(self, k, v)
 
     @classmethod
@@ -91,9 +91,7 @@ class DataCache(object):
 
         value = item.value
         if convert_json:
-            # Use OrderedDict instead of dict, so that the order of the columns
-            # in the data is preserved from the data when it was written (assuming
-            # it was written as an OrderedDict in the report's code).
+            # Preserve the order of the columns in the data
             try:
                 # Python 2.7's json library has object_pairs_hook
                 import json

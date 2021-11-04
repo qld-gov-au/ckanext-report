@@ -63,7 +63,7 @@ class Report(object):
                 value = option_dict[key]
             if isinstance(value, six.string_types):
                 try:
-                    value = six.binary_type(value)
+                    value = six.text_type(value)
                 except UnicodeEncodeError:
                     value = value.encode('utf8')
             elif isinstance(value, bool):
@@ -139,7 +139,7 @@ class Report(object):
                 if defaulted_options[key] is True:
                     # Checkboxes don't submit a value when False, so cannot
                     # default to True. i.e. to get a True value, you always
-                    # need be expicit in the params.
+                    # need be explicit in the params.
                     defaulted_options[key] = False
                 continue
             value = options[key]
@@ -203,17 +203,17 @@ class ReportRegistry(object):
 
     def get_names(self):
         return [(r.plugin, r.name, r.title)
-                for r in sorted(self._reports.values(), key=lambda r: r.plugin)]
+                for r in sorted(list(self._reports.values()), key=lambda r: r.plugin)]
 
     def get_reports(self):
-        return sorted(self._reports.values(), key=lambda r: r.title)
+        return sorted(list(self._reports.values()), key=lambda r: r.title)
 
     def get_report(self, report_name):
         return self._reports[report_name]
 
     def refresh_cache_for_all_reports(self):
         '''Generates all the reports for all the option combinations and caches them.'''
-        for report in self._reports.values():
+        for report in list(self._reports.values()):
             report.refresh_cache_for_all_options()
 
 
