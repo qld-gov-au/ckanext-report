@@ -73,7 +73,8 @@ def report_view(report_name, organization=None, refresh=False):
             log.warn('Not displaying report option HTML for param %s as option not recognized')
             continue
         option_display_params = {'value': options[option],
-                                 'default': report['option_defaults'][option]}
+                                 'default': report['option_defaults'][option],
+                                 'report_name': report_name}
         try:
             options_html[option] = \
                 t.render_snippet('report/option_%s.html' % option,
