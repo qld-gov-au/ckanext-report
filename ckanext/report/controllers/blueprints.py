@@ -39,7 +39,7 @@ reporting.add_url_rule(
     u'/report/<report_name>', 'view', view_func=view, methods=('GET', 'POST',)
 )
 reporting.add_url_rule(
-    u'/report/<report_name>/<organization>', 'org', view_func=view
+    u'/report/<report_name>/<organization>', 'org', view_func=view, methods=('GET', 'POST',)
 )
 
 
