@@ -121,13 +121,14 @@ def report_view(report_name, organization=None, refresh=False):
             except t.NotAuthorized:
                 t.abort(401)
             filename = 'report_%s.csv' % key
-            t.response.headers['Content-Type'] = 'application/csv'
-            t.response.headers['Content-Disposition'] = six.text_type('attachment; filename=%s' % (filename))
-            return make_csv_from_dicts(data['table'])
+            response_headers = {
+                'Content-Type': 'application/csv',
+                'Content-Disposition': six.text_type('attachment; filename=%s' % (filename))
+            }
+            return make_csv_from_dicts(data['table']), response_headers
         elif format == 'json':
-            t.response.headers['Content-Type'] = 'application/json'
             data['generated_at'] = report_date
-            return json.dumps(data)
+            return json.dumps(data), {'Content-Type': 'application/json'}
         else:
             t.abort(400, 'Format not known - try html, json or csv')
 
@@ -141,4 +142,4 @@ def report_view(report_name, organization=None, refresh=False):
         'report_date': report_date, 'options': options,
         'options_html': options_html,
         'report_template': report['template'],
-        'are_some_results': are_some_results})
+        'are_some_results': are_some_results}), {}
