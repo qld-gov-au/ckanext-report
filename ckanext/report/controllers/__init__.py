@@ -38,6 +38,9 @@ def report_view(report_name, organization=None, refresh=False):
         t.abort(401)
     except t.ObjectNotFound:
         t.abort(404)
+    except Exception as e:
+        log.error("Failed to get report: %s", e)
+        raise
 
     # ensure correct url is being used
     if 'organization' in _get_routing_rule()\
