@@ -14,34 +14,32 @@ Example report:
 
 ![Demo report image](report-demo.png)
 
-A number of extensions currently offer reports that rely on this extension, e.g. [ckanext-archiver](https://github.com/datagovuk/ckanext-archiver/blob/master/ckanext/archiver/reports.py), [ckanext-qa](https://github.com/datagovuk/ckanext-qa/blob/master/ckanext/qa/reports.py), [ckanext-dgu](https://github.com/datagovuk/ckanext-dgu/blob/master/ckanext/dgu/lib/reports.py).
+A number of extensions currently offer reports that rely on this extension, e.g. [ckanext-archiver](https://github.com/ckan/ckanext-archiver/blob/master/ckanext/archiver/reports.py), [ckanext-qa](https://github.com/ckan/ckanext-qa/blob/master/ckanext/qa/reports.py), [ckanext-dgu](https://github.com/datagovuk/ckanext-dgu/blob/master/ckanext/dgu/lib/reports.py).
 
 TODO:
 
 * Stop a report from being generated multiple times in parallel (unnecessary waste) - use a queue?
 * Stop more than one report being generated in parallel (high load for the server) - maybe use a queue.
 
-Compatibility: Requires CKAN version 2.1 or later (but can be easily adapted for older versions).
+## Compatibility:
 
+| CKAN version    | Compatibility       |
+| --------------- | ------------------- |
+| 2.6 and earlier | yes                 |
+| 2.7             | yes                 |
+| 2.8             | yes                 |
+| 2.9             | yes                 |
 
-| CKAN version    | Compatibility |
-| --------------- | ------------- |
-| 2.6 and earlier | yes           |
-| 2.7             | yes           |
-| 2.8             | yes           |
-| 2.9             | yes           |
+Status: was in production at data.gov.uk around 2014-2016, but since that uses its own CSS rather than core CKAN's, for others to use it CSS needs adding. For an example, see this branch: see https://github.com/GSA/ckanext-report/tree/geoversion
 
-
-Status: in production at data.gov.uk but since that uses its own CSS rather than core CKAN's, for others to use it CSS needs adding. For an example, see this branch: see https://github.com/yaditi/ckanext-report/tree/geoversion
-
-Author(s): David Read
+Author(s): David Read and contributors
 
 
 ## Install & setup
 
 Install ckanext-report into your CKAN virtual environment in the usual way:
 
-    (pyenv) $ pip install -e git+https://github.com/datagovuk/ckanext-report.git#egg=ckanext-report
+    (pyenv) $ pip install -e git+https://github.com/ckan/ckanext-report.git#egg=ckanext-report
 
 Initialize the database tables needed by ckanext-report:
 
@@ -54,7 +52,7 @@ Enable the plugin. In your config (e.g. development.ini or production.ini) add `
 
 ## Command-line interface
 
-The following operations can be run from the command line using the ``paster --plugin=ckanext-report report`` command:
+The following operations can be run from the command line using the ``paster --plugin=ckanext-report report`` or ``ckan report`` commands:
 
 ```
   report list
@@ -67,14 +65,17 @@ The following operations can be run from the command line using the ``paster --p
 Get the list of reports:
 
     (pyenv) $ paster --plugin=ckanext-report report list --config=mysite.ini
+    (pyenv) $ ckan --config=mysite.ini report list
 
 Generate all reports:
 
     (pyenv) $ paster --plugin=ckanext-report report generate --config=mysite.ini
+    (pyenv) $ ckan --config=mysite.ini report generate
 
 Generate a single report:
 
     (pyenv) $ paster --plugin=ckanext-report report generate <report name> --config=mysite.ini
+    (pyenv) $ ckan --config=mysite.ini report generate <report name>
 
 
 ## Demo report - Tagless Datasets
@@ -142,6 +143,9 @@ Report (snippet)
 table - main data, as a list of rows, each row is a dict
 data - other data values, as a dict
 #}
+
+{% set ckan_29_or_higher = h.ckan_version().split('.')[1] | int >= 9 %}
+{% set dataset_read_route = 'dataset.read' if ckan_29_or_higher else 'dataset_read' %}
 <ul>
     <li>Datasets without tags: {{ table|length }} / {{ data['num_packages'] }} ({{ data['packages_without_tags_percent'] }})</li>
     <li>Average tags per package: {{ data['average_tags_per_package'] }} tags</li>
@@ -160,7 +164,7 @@ data - other data values, as a dict
       {% for row in table %}
         <tr>
           <td>
-            <a href="{{ h.url_for(controller='package', action='view', id=row.name) }}">
+            <a href="{{ h.url_for(dataset_read_route, id=row.name) }}">
               {{ row.title }}
             </a>
           </td>

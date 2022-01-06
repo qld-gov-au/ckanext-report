@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+import six
+
 import ckan.plugins.toolkit as t
 from ckanext.report.controllers import report_index, report_view
 
@@ -10,4 +12,8 @@ class ReportController(t.BaseController):
         return report_index()
 
     def view(self, report_name, organization=None, refresh=False):
-        return report_view(report_name, organization, refresh)
+        body, headers = report_view(report_name, organization, refresh)
+        if headers:
+            for key, value in six.iteritems(headers):
+                t.response.headers[key] = value
+        return body

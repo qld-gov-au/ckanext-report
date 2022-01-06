@@ -38,6 +38,9 @@ def report_view(report_name, organization=None, refresh=False):
         t.abort(401)
     except t.ObjectNotFound:
         t.abort(404)
+    except Exception as e:
+        log.error("Failed to get report: %s", e)
+        raise
 
     # ensure correct url is being used
     if 'organization' in _get_routing_rule()\
@@ -70,7 +73,8 @@ def report_view(report_name, organization=None, refresh=False):
             log.warn('Not displaying report option HTML for param %s as option not recognized')
             continue
         option_display_params = {'value': options[option],
-                                 'default': report['option_defaults'][option]}
+                                 'default': report['option_defaults'][option],
+                                 'report_name': report_name}
         try:
             options_html[option] = \
                 t.render_snippet('report/option_%s.html' % option,
@@ -121,13 +125,14 @@ def report_view(report_name, organization=None, refresh=False):
             except t.NotAuthorized:
                 t.abort(401)
             filename = 'report_%s.csv' % key
-            t.response.headers['Content-Type'] = 'application/csv'
-            t.response.headers['Content-Disposition'] = six.text_type('attachment; filename=%s' % (filename))
-            return make_csv_from_dicts(data['table'])
+            response_headers = {
+                'Content-Type': 'application/csv',
+                'Content-Disposition': six.text_type('attachment; filename=%s' % (filename))
+            }
+            return make_csv_from_dicts(data['table']), response_headers
         elif format == 'json':
-            t.response.headers['Content-Type'] = 'application/json'
             data['generated_at'] = report_date
-            return json.dumps(data)
+            return json.dumps(data), {'Content-Type': 'application/json'}
         else:
             t.abort(400, 'Format not known - try html, json or csv')
 
@@ -141,4 +146,4 @@ def report_view(report_name, organization=None, refresh=False):
         'report_date': report_date, 'options': options,
         'options_html': options_html,
         'report_template': report['template'],
-        'are_some_results': are_some_results})
+        'are_some_results': are_some_results}), {}

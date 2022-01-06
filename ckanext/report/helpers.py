@@ -35,11 +35,11 @@ def relative_url_for(**kwargs):
         args = dict(list(tk.request.environ['pylons.routes_dict'].items())
                     + user_specified_params
                     + list(kwargs.items()))
-    # remove blanks
-    for k, v in list(args.items()):
-        if not v:
-            del args[k]
-    return tk.url_for(**args)
+        # remove blanks
+        for k, v in list(args.items()):
+            if not v:
+                del args[k]
+        return tk.url_for(**args)
 
 
 def chunks(list_, size):
