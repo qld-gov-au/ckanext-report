@@ -3,8 +3,8 @@
 {% block title %}{{ report.title }} - {{ _('Reports') }} - {{ super() }}{% endblock %}
 
 {% block breadcrumb_content %}
-  {{ h.build_nav('reports', _('Reports')) }}
-  {{ h.build_nav('report-org' if '/organization' in request.environ.get('PATH_INFO', '') else 'report', report.title, report_name=report_name) }}
+  {{ h.nav_link(_('Reports'), named_route='report.index') }}
+  {{ h.nav_link(report.title, named_route='report.org' if '/organization' in request.environ.get('PATH_INFO', '') else 'report.view', report_name=report_name) }}
 {% endblock%}
 
 {% block primary_content_inner %}
@@ -14,7 +14,7 @@
           {{ _('Generated') }}: {{ h.report__render_datetime(report_date, '%d/%m/%Y %H:%M') }}
       </p>
       {% if c.userobj.sysadmin %}
-      <div class="panel panel-info" style="width=700px">
+      <div class="panel panel-info">
           <div class="panel-heading"><strong>{% trans %}Refresh report{% endtrans %}</strong></div>
           <div class="panel-body">
             <form action="" method="POST">
@@ -43,8 +43,8 @@
       {% if are_some_results %}
         <div class="pull-right">
             {{ _('Download') }}:
-            <a class="btn btn-primary" href="{{ h.report__relative_url_for(format='csv') }}">CSV</a>
-            <a class="btn btn-primary" href="{{ h.report__relative_url_for(format='json') }}">JSON</a>
+            <a class="btn btn-primary" href="{{ h.url_for('report.view', format='csv', report_name=report_name) }}">CSV</a>
+            <a class="btn btn-primary" href="{{ h.url_for('report.view', format='json', report_name=report_name) }}">JSON</a>
         </div>
       {% endif %}
       <h3>{{ _('Results') }}</h3>

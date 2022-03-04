@@ -1,4 +1,7 @@
+# encoding: utf-8
+
 import ckan.plugins as p
+from ckan.plugins import toolkit
 from ckanext.report.interfaces import IReport
 
 import ckanext.report.logic.action.get as action_get
@@ -6,30 +9,23 @@ import ckanext.report.logic.action.update as action_update
 import ckanext.report.logic.auth.get as auth_get
 import ckanext.report.logic.auth.update as auth_update
 
-class ReportPlugin(p.SingletonPlugin):
-    p.implements(p.IRoutes, inherit=True)
+
+if toolkit.check_ckan_version("2.9"):
+    from ckanext.report.plugin.flask_plugin import MixinPlugin
+else:
+    from ckanext.report.plugin.pylons_plugin import MixinPlugin
+
+
+class ReportPlugin(MixinPlugin, p.SingletonPlugin):
     p.implements(p.IConfigurer)
     p.implements(p.ITemplateHelpers)
     p.implements(p.IActions, inherit=True)
     p.implements(p.IAuthFunctions, inherit=True)
 
-    # IRoutes
-
-    def before_map(self, map):
-        report_ctlr = 'ckanext.report.controllers:ReportController'
-        map.connect('reports', '/report', controller=report_ctlr,
-                    action='index')
-        map.redirect('/reports', '/report')
-        map.connect('report', '/report/:report_name', controller=report_ctlr,
-                    action='view')
-        map.connect('report-org', '/report/:report_name/:organization',
-                    controller=report_ctlr, action='view')
-        return map
-
     # IConfigurer
 
     def update_config(self, config):
-        p.toolkit.add_template_directory(config, 'templates')
+        toolkit.add_template_directory(config, '../templates')
 
     # ITemplateHelpers
 
@@ -41,7 +37,7 @@ class ReportPlugin(p.SingletonPlugin):
             'report__organization_list': h.organization_list,
             'report__render_datetime': h.render_datetime,
             'report__explicit_default_options': h.explicit_default_options,
-            }
+        }
 
     # IActions
     def get_actions(self):
@@ -70,6 +66,5 @@ class TaglessReportPlugin(p.SingletonPlugin):
     # IReport
 
     def register_reports(self):
-        import reports
+        from ckanext.report import reports
         return [reports.tagless_report_info]
-

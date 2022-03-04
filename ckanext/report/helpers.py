@@ -1,3 +1,6 @@
+# encoding: utf-8
+
+from six.moves import range
 from ckanext.report.report_registry import ReportRegistry
 from ckan.plugins import toolkit as tk
 import ckan.lib.helpers
@@ -13,28 +16,42 @@ def relative_url_for(**kwargs):
     # being an open redirect.
     disallowed_params = set(('controller', 'action', 'anchor', 'host',
                              'protocol', 'qualified'))
-    user_specified_params = [(k, v) for k, v in tk.request.params.items()
+    user_specified_params = [(k, v) for k, v in list(tk.request.params.items())
                              if k not in disallowed_params]
-    args = dict(tk.request.environ['pylons.routes_dict'].items()
-                + user_specified_params
-                + kwargs.items())
-    # remove blanks
-    for k, v in args.items():
-        if not v:
-            del args[k]
-    return tk.url_for(**args)
+
+    if tk.check_ckan_version(min_version="2.9.0"):
+        from flask import request
+        args = dict(list(request.args.items())
+                    + user_specified_params
+                    + list(kwargs.items()))
+
+        # remove blanks
+        for k, v in list(args.items()):
+            if not v:
+                del args[k]
+        return tk.url_for(request.url_rule.rule, **args)
+
+    else:
+        args = dict(list(tk.request.environ['pylons.routes_dict'].items())
+                    + user_specified_params
+                    + list(kwargs.items()))
+        # remove blanks
+        for k, v in list(args.items()):
+            if not v:
+                del args[k]
+        return tk.url_for(**args)
 
 
 def chunks(list_, size):
     '''Splits up a given list into 'size' sized chunks.'''
-    for i in xrange(0, len(list_), size):
-        yield list_[i:i+size]
+    for i in range(0, len(list_), size):
+        yield list_[i:i + size]
 
 
 def organization_list():
     organizations = model.Session.query(model.Group).\
-        filter(model.Group.type=='organization').\
-        filter(model.Group.state=='active').order_by('title')
+        filter(model.Group.type == 'organization').\
+        filter(model.Group.state == 'active').order_by('title')
     for organization in organizations:
         yield (organization.name, organization.title)
 
