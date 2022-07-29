@@ -26,7 +26,7 @@ def report_index():
     try:
         reports = t.get_action('report_list')({}, {})
     except t.NotAuthorized:
-        t.abort(401)
+        return t.abort(401)
 
     return t.render('report/index.html', extra_vars={'reports': reports})
 
@@ -35,9 +35,9 @@ def report_view(report_name, organization=None, refresh=False):
     try:
         report = t.get_action('report_show')({}, {'id': report_name})
     except t.NotAuthorized:
-        t.abort(401)
+        return t.abort(401)
     except t.ObjectNotFound:
-        t.abort(404)
+        return t.abort(404)
     except Exception as e:
         log.error("Failed to get report: %s", e)
         raise
@@ -45,16 +45,16 @@ def report_view(report_name, organization=None, refresh=False):
     # ensure correct url is being used
     if 'organization' in _get_routing_rule()\
             and 'organization' not in report['option_defaults']:
-        t.redirect_to(helpers.relative_url_for(organization=None))
+        return t.redirect_to(helpers.relative_url_for(organization=None))
     elif 'organization' not in _get_routing_rule()\
             and 'organization' in report['option_defaults']\
             and report['option_defaults']['organization']:
         org = report['option_defaults']['organization']
-        t.redirect_to(helpers.relative_url_for(organization=org))
+        return t.redirect_to(helpers.relative_url_for(organization=org))
     if 'organization' in t.request.params:
         # organization should only be in the url - let the param overwrite
         # the url.
-        t.redirect_to(helpers.relative_url_for())
+        return t.redirect_to(helpers.relative_url_for())
 
     # options
     options = Report.add_defaults_to_options(t.request.params, report['option_defaults'])
@@ -100,21 +100,21 @@ def report_view(report_name, organization=None, refresh=False):
         try:
             t.get_action('report_refresh')({}, {'id': report_name, 'options': options})
         except t.NotAuthorized:
-            t.abort(401)
+            return t.abort(401)
         # Don't want the refresh=1 in the url once it is done
-        t.redirect_to(helpers.relative_url_for(refresh=None))
+        return t.redirect_to(helpers.relative_url_for(refresh=None))
 
     # Check for any options not allowed by the report
     for key in options:
         if key not in report['option_defaults']:
-            t.abort(400, 'Option not allowed by report: %s' % key)
+            return t.abort(400, 'Option not allowed by report: %s' % key)
 
     try:
         data, report_date = t.get_action('report_data_get')({}, {'id': report_name, 'options': options})
     except t.ObjectNotFound:
-        t.abort(404)
+        return t.abort(404)
     except t.NotAuthorized:
-        t.abort(401)
+        return t.abort(401)
 
     if format and format != 'html':
         ensure_data_is_dicts(data)
@@ -123,7 +123,7 @@ def report_view(report_name, organization=None, refresh=False):
             try:
                 key = t.get_action('report_key_get')({}, {'id': report_name, 'options': options})
             except t.NotAuthorized:
-                t.abort(401)
+                return t.abort(401)
             filename = 'report_%s.csv' % key
             response_headers = {
                 'Content-Type': 'application/csv',
@@ -134,7 +134,7 @@ def report_view(report_name, organization=None, refresh=False):
             data['generated_at'] = report_date
             return json.dumps(data), {'Content-Type': 'application/json'}
         else:
-            t.abort(400, 'Format not known - try html, json or csv')
+            return t.abort(400, 'Format not known - try html, json or csv')
 
     are_some_results = bool(data['table'] if 'table' in data
                             else data)
