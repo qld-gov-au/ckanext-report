@@ -2,7 +2,7 @@
 
 import ckan.plugins as p
 
-from ckanext.report.cli.command import Reporting
+from . import utils
 
 
 class ReportCommand(p.toolkit.CkanCommand):
@@ -56,28 +56,20 @@ class ReportCommand(p.toolkit.CkanCommand):
         self.log = logging.getLogger("ckan.lib.cli")
 
         cmd = self.args[0]
-        reporter = Reporting()
         if cmd == 'initdb':
-            reporter.initdb()
+            utils.initdb()
         elif cmd == 'list':
-            reporter.list()
+            utils.list()
         elif cmd == 'generate':
             report_list = None
             if len(self.args) == 2:
                 report_list = [s.strip() for s in self.args[1].split(',')]
-            reporter.generate(report_list)
+                self.log.info("Running reports => %s", report_list)
+            timings = utils.generate(report_list)
+            self.log.info("Report generation complete %s", timings)
         elif cmd == 'generate-for-options':
-            report_name = self.args[1]
-            report_options = {}
-            for option_arg in self.args[2:]:
-                if '=' not in option_arg:
-                    self.parser.error('Option needs an "=" sign in it: "%s"'
-                                      % option_arg)
-                equal_pos = option_arg.find('=')
-                key, value = option_arg[:equal_pos], option_arg[equal_pos + 1:]
-                if value == '':
-                    value = None  # this is what the web i/f does with params
-                report_options[key] = value
-            reporter.generate_for_options(report_name, report_options)
+            message = utils.generate_for_options(self.args[1], self.self.args[2:])
+            if message:
+                self.parser.error(message)
         else:
             self.parser.error('Command not recognized: %r' % cmd)

@@ -18,7 +18,6 @@ def relative_url_for(**kwargs):
                              'protocol', 'qualified'))
     user_specified_params = [(k, v) for k, v in list(tk.request.params.items())
                              if k not in disallowed_params]
-
     if tk.check_ckan_version(min_version="2.9.0"):
         from flask import request
         args = dict(list(request.args.items())
@@ -88,3 +87,11 @@ def explicit_default_options(report_name):
         if options[key] is True:
             explicit_defaults[key] = 1
     return explicit_defaults
+
+
+def is_ckan_29():
+    """
+    Returns True if using CKAN 2.9+, with Flask and Webassets.
+    Returns False if those are not present.
+    """
+    return tk.check_ckan_version(min_version='2.9.0')

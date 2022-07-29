@@ -1,18 +1,29 @@
 # encoding: utf-8
 
+import logging
 import six
+import time
 
-from ckan.common import request
 from ckan.lib.helpers import json
-from ckan.lib.render import TemplateNotFound
+try:
+    from jinja2.exceptions import TemplateNotFound
+except ImportError:
+    # CKAN 2.8
+    from ckan.lib.render import TemplateNotFound
 import ckan.plugins.toolkit as t
-import ckanext.report.helpers as helpers
-from ckanext.report.lib import make_csv_from_dicts, ensure_data_is_dicts, anonymise_user_names
-from ckanext.report.report_registry import Report
+from ckan.plugins.toolkit import request
 
-log = __import__('logging').getLogger(__name__)
+from . import helpers
+from .lib import make_csv_from_dicts, ensure_data_is_dicts, anonymise_user_names
+from .report_registry import Report, ReportRegistry
+
+log = logging.getLogger(__name__)
 
 c = t.c
+
+###############################################################################
+#                                  Controller                                 #
+###############################################################################
 
 
 def _get_routing_rule():
@@ -51,13 +62,13 @@ def report_view(report_name, organization=None, refresh=False):
             and report['option_defaults']['organization']:
         org = report['option_defaults']['organization']
         return t.redirect_to(helpers.relative_url_for(organization=org))
-    if 'organization' in t.request.params:
+    if 'organization' in request.params:
         # organization should only be in the url - let the param overwrite
         # the url.
         return t.redirect_to(helpers.relative_url_for())
 
     # options
-    options = Report.add_defaults_to_options(t.request.params, report['option_defaults'])
+    options = Report.add_defaults_to_options(request.params, report['option_defaults'])
     option_display_params = {}
     if 'format' in options:
         format = options.pop('format')
@@ -86,7 +97,7 @@ def report_view(report_name, organization=None, refresh=False):
     # Alternative way to refresh the cache - not in the UI, but is
     # handy for testing
     try:
-        refresh = t.asbool(t.request.params.get('refresh'))
+        refresh = t.asbool(request.params.get('refresh'))
         if 'refresh' in options:
             options.pop('refresh')
     except ValueError:
@@ -147,3 +158,61 @@ def report_view(report_name, organization=None, refresh=False):
         'options_html': options_html,
         'report_template': report['template'],
         'are_some_results': are_some_results}), {}
+
+
+###############################################################################
+#                                     CLI                                     #
+###############################################################################
+
+
+def initdb():
+    from ckanext.report import model
+    model.init_tables()
+    log.info('Report table is setup')
+
+
+def generate(report_list):
+    timings = {}
+
+    registry = ReportRegistry.instance()
+    if report_list:
+        log.info("Running reports => %s", report_list)
+        for report_name in report_list:
+            s = time.time()
+            registry.get_report(report_name).refresh_cache_for_all_options()
+            timings[report_name] = time.time() - s
+    else:
+        s = time.time()
+        registry.refresh_cache_for_all_reports()
+        timings["All Reports"] = time.time() - s
+
+    return timings
+
+
+def list():
+    registry = ReportRegistry.instance()
+    for plugin, report_name, report_title in registry.get_names():
+        report = registry.get_report(report_name)
+        date = report.get_cached_date()
+        print('%s: %s %s' % (plugin, report_name,
+              date.strftime('%d/%m/%Y %H:%M') if date else '(not cached)'))
+
+
+def generate_for_options(report_name, options):
+    report_options = {}
+
+    for option_arg in options:
+        if '=' not in option_arg:
+            return 'Option needs an "=" sign in it: "%s"' % option_arg
+        equal_pos = option_arg.find('=')
+        key, value = option_arg[:equal_pos], option_arg[equal_pos + 1:]
+        if value == '':
+            value = None  # this is what the web i/f does with params
+        report_options[key] = value
+
+    log.info("Running report => %s", report_name)
+    registry = ReportRegistry.instance()
+    report = registry.get_report(report_name)
+    all_options = report.add_defaults_to_options(report_options,
+                                                 report.option_defaults)
+    report.refresh_cache(all_options)

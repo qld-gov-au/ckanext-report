@@ -27,6 +27,6 @@ setup(
         tagless_report = ckanext.report.plugin:TaglessReportPlugin
 
         [paste.paster_command]
-        report = ckanext.report.cli.paster_cli:ReportCommand
+        report = ckanext.report.command:ReportCommand
     ''',
 )

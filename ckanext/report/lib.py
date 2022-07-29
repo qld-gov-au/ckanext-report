@@ -1,15 +1,16 @@
 '''
 These functions are for use by other extensions for their reports.
 '''
-import datetime
+from datetime import datetime
 import six
-from six.moves import zip
+from six.moves import cStringIO as StringIO, zip
 try:
     from collections import OrderedDict  # from python 2.7
 except ImportError:
     from sqlalchemy.util import OrderedDict
 
 import ckan.plugins as p
+from ckan.plugins.toolkit import config
 
 
 def all_organizations(include_none=False):
@@ -59,10 +60,6 @@ def filter_by_organizations(query, organization, include_sub_organizations):
 def dataset_notes(pkg):
     '''Returns a string with notes about the given package. It is
     configurable.'''
-    if p.toolkit.check_ckan_version(min_version="2.6.0"):
-        from ckan.plugins.toolkit import config
-    else:
-        from pylons import config
     expression = config.get('ckanext-report.notes.dataset')
     if not expression:
         return ''
@@ -72,13 +69,13 @@ def dataset_notes(pkg):
 def percent(numerator, denominator):
     if denominator == 0:
         return 100 if numerator else 0
-    return int((numerator * 100.0) // denominator)
+    return int((numerator * 100.0) / denominator)
 
 
 def make_csv_from_dicts(rows):
     import csv
 
-    csvout = six.StringIO()
+    csvout = StringIO()
     csvwriter = csv.writer(
         csvout,
         dialect='excel',
@@ -99,9 +96,9 @@ def make_csv_from_dicts(rows):
         items = []
         for header in headers_ordered:
             item = row.get(header, 'no record')
-            if isinstance(item, datetime.datetime):
+            if isinstance(item, datetime):
                 item = item.strftime('%Y-%m-%d %H:%M')
-            elif isinstance(item, (int, int, float, list, tuple)):
+            elif isinstance(item, (int, float, list, tuple)):
                 item = six.text_type(item)
             elif item is None:
                 item = ''

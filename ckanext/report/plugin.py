@@ -2,18 +2,16 @@
 
 import ckan.plugins as p
 from ckan.plugins import toolkit
-from ckanext.report.interfaces import IReport
 
-import ckanext.report.logic.action.get as action_get
-import ckanext.report.logic.action.update as action_update
-import ckanext.report.logic.auth.get as auth_get
-import ckanext.report.logic.auth.update as auth_update
+from . import helpers as h
+from .interfaces import IReport
+from .logic.action import get as action_get, update as action_update
+from .logic.auth import get as auth_get, update as auth_update
 
-
-if toolkit.check_ckan_version("2.9"):
-    from ckanext.report.plugin.flask_plugin import MixinPlugin
+if h.is_ckan_29():
+    from .plugin_mixins.flask_plugin import MixinPlugin
 else:
-    from ckanext.report.plugin.pylons_plugin import MixinPlugin
+    from .plugin_mixins.pylons_plugin import MixinPlugin
 
 
 class ReportPlugin(MixinPlugin, p.SingletonPlugin):
@@ -25,18 +23,18 @@ class ReportPlugin(MixinPlugin, p.SingletonPlugin):
     # IConfigurer
 
     def update_config(self, config):
-        toolkit.add_template_directory(config, '../templates')
+        toolkit.add_template_directory(config, 'templates')
 
     # ITemplateHelpers
 
     def get_helpers(self):
-        from ckanext.report import helpers as h
         return {
             'report__relative_url_for': h.relative_url_for,
             'report__chunks': h.chunks,
             'report__organization_list': h.organization_list,
             'report__render_datetime': h.render_datetime,
             'report__explicit_default_options': h.explicit_default_options,
+            'is_ckan_29': h.is_ckan_29(),
         }
 
     # IActions
