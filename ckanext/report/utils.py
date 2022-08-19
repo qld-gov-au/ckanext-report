@@ -46,9 +46,9 @@ def report_view(report_name, organization=None, refresh=False):
     try:
         report = t.get_action('report_show')({}, {'id': report_name})
     except t.NotAuthorized:
-        return t.abort(401)
+        return t.abort(401), None
     except t.ObjectNotFound:
-        return t.abort(404)
+        return t.abort(404), None
     except Exception as e:
         log.error("Failed to get report: %s", e)
         raise
@@ -56,16 +56,16 @@ def report_view(report_name, organization=None, refresh=False):
     # ensure correct url is being used
     if 'organization' in _get_routing_rule()\
             and 'organization' not in report['option_defaults']:
-        return t.redirect_to(helpers.relative_url_for(organization=None))
+        return t.redirect_to(helpers.relative_url_for(organization=None)), None
     elif 'organization' not in _get_routing_rule()\
             and 'organization' in report['option_defaults']\
             and report['option_defaults']['organization']:
         org = report['option_defaults']['organization']
-        return t.redirect_to(helpers.relative_url_for(organization=org))
+        return t.redirect_to(helpers.relative_url_for(organization=org)), None
     if 'organization' in request.params:
         # organization should only be in the url - let the param overwrite
         # the url.
-        return t.redirect_to(helpers.relative_url_for())
+        return t.redirect_to(helpers.relative_url_for()), None
 
     # options
     options = Report.add_defaults_to_options(request.params, report['option_defaults'])
@@ -111,21 +111,21 @@ def report_view(report_name, organization=None, refresh=False):
         try:
             t.get_action('report_refresh')({}, {'id': report_name, 'options': options})
         except t.NotAuthorized:
-            return t.abort(401)
+            return t.abort(401), None
         # Don't want the refresh=1 in the url once it is done
-        return t.redirect_to(helpers.relative_url_for(refresh=None))
+        return t.redirect_to(helpers.relative_url_for(refresh=None)), None
 
     # Check for any options not allowed by the report
     for key in options:
         if key not in report['option_defaults']:
-            return t.abort(400, 'Option not allowed by report: %s' % key)
+            return t.abort(400, 'Option not allowed by report: %s' % key), None
 
     try:
         data, report_date = t.get_action('report_data_get')({}, {'id': report_name, 'options': options})
     except t.ObjectNotFound:
-        return t.abort(404)
+        return t.abort(404), None
     except t.NotAuthorized:
-        return t.abort(401)
+        return t.abort(401), None
 
     if format and format != 'html':
         ensure_data_is_dicts(data)
@@ -134,7 +134,7 @@ def report_view(report_name, organization=None, refresh=False):
             try:
                 key = t.get_action('report_key_get')({}, {'id': report_name, 'options': options})
             except t.NotAuthorized:
-                return t.abort(401)
+                return t.abort(401), None
             filename = 'report_%s.csv' % key
             response_headers = {
                 'Content-Type': 'application/csv',
@@ -145,7 +145,7 @@ def report_view(report_name, organization=None, refresh=False):
             data['generated_at'] = report_date
             return json.dumps(data), {'Content-Type': 'application/json'}
         else:
-            return t.abort(400, 'Format not known - try html, json or csv')
+            return t.abort(400, 'Format not known - try html, json or csv'), None
 
     are_some_results = bool(data['table'] if 'table' in data
                             else data)
@@ -157,7 +157,7 @@ def report_view(report_name, organization=None, refresh=False):
         'report_date': report_date, 'options': options,
         'options_html': options_html,
         'report_template': report['template'],
-        'are_some_results': are_some_results}), {}
+        'are_some_results': are_some_results}), None
 
 
 ###############################################################################
