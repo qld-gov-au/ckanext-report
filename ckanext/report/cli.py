@@ -40,7 +40,7 @@ def generate(report_list):
 def list():
     """ Lists the reports
     """
-    utils.list()
+    utils.list_reports()
 
 
 @report.command()

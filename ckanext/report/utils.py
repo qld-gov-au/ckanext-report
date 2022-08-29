@@ -190,7 +190,7 @@ def generate(report_list):
     return timings
 
 
-def list():
+def list_reports():
     registry = ReportRegistry.instance()
     for plugin, report_name, report_title in registry.get_names():
         report = registry.get_report(report_name)

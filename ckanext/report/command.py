@@ -59,7 +59,7 @@ class ReportCommand(p.toolkit.CkanCommand):
         if cmd == 'initdb':
             utils.initdb()
         elif cmd == 'list':
-            utils.list()
+            utils.list_reports()
         elif cmd == 'generate':
             report_list = None
             if len(self.args) == 2:
