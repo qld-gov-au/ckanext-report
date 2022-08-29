@@ -34,7 +34,7 @@ class ReportPlugin(MixinPlugin, p.SingletonPlugin):
             'report__organization_list': h.organization_list,
             'report__render_datetime': h.render_datetime,
             'report__explicit_default_options': h.explicit_default_options,
-            'is_ckan_29': h.is_ckan_29(),
+            'is_ckan_29': h.is_ckan_29,
         }
 
     # IActions
