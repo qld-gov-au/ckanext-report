@@ -11,9 +11,8 @@ except ImportError:
     # CKAN 2.8
     from ckan.lib.render import TemplateNotFound
 import ckan.plugins.toolkit as t
-from ckan.plugins.toolkit import request
+from ckan.plugins.toolkit import request, url_for
 
-from . import helpers
 from .lib import make_csv_from_dicts, ensure_data_is_dicts, anonymise_user_names
 from .report_registry import Report, ReportRegistry
 
@@ -54,18 +53,17 @@ def report_view(report_name, organization=None, refresh=False):
         raise
 
     # ensure correct url is being used
-    if 'organization' in _get_routing_rule()\
-            and 'organization' not in report['option_defaults']:
-        return t.redirect_to(helpers.relative_url_for(organization=None)), None
-    elif 'organization' not in _get_routing_rule()\
-            and 'organization' in report['option_defaults']\
-            and report['option_defaults']['organization']:
-        org = report['option_defaults']['organization']
-        return t.redirect_to(helpers.relative_url_for(organization=org)), None
-    if 'organization' in request.params:
+    org_in_route = 'organization' in _get_routing_rule()
+    org_in_options = report['option_defaults'].get('organization')
+    if org_in_route and not org_in_options:
+        return t.redirect_to(url_for('report.view', report_name=report_name)), None
+    if org_in_options and not org_in_route:
+        return t.redirect_to(url_for('report.org', report_name=report_name, organization=org_in_options)), None
+    org_in_params = request.params.get('organization')
+    if org_in_params:
         # organization should only be in the url - let the param overwrite
         # the url.
-        return t.redirect_to(helpers.relative_url_for()), None
+        return t.redirect_to(url_for('report.org', report_name=report_name, organization=org_in_params)), None
 
     # options
     options = Report.add_defaults_to_options(request.params, report['option_defaults'])
@@ -74,7 +72,7 @@ def report_view(report_name, organization=None, refresh=False):
         format = options.pop('format')
     else:
         format = None
-    if 'organization' in report['option_defaults']:
+    if org_in_options:
         options['organization'] = organization
     options_html = {}
     c.options = options  # for legacy genshi snippets
@@ -113,7 +111,10 @@ def report_view(report_name, organization=None, refresh=False):
         except t.NotAuthorized:
             return t.abort(401), None
         # Don't want the refresh=1 in the url once it is done
-        return t.redirect_to(helpers.relative_url_for(refresh=None)), None
+        if organization:
+            return t.redirect_to(url_for('report.org', report_name=report_name, organization=organization)), None
+        else:
+            return t.redirect_to(url_for('report.view', report_name=report_name)), None
 
     # Check for any options not allowed by the report
     for key in options:
