@@ -53,12 +53,15 @@ def report_view(report_name, organization=None, refresh=False):
         raise
 
     # ensure correct url is being used
-    org_in_route = 'organization' in _get_routing_rule()
-    org_in_options = report['option_defaults'].get('organization')
-    if org_in_route and not org_in_options:
-        return t.redirect_to(url_for('report.view', report_name=report_name)), None
-    if org_in_options and not org_in_route:
-        return t.redirect_to(url_for('report.org', report_name=report_name, organization=org_in_options)), None
+    if organization or 'organization' in _get_routing_rule():
+        if 'organization' not in report['option_defaults']:
+            # org is supplied but is not a valid input for this report
+            return t.redirect_to(url_for('report.view', report_name=report_name)), None
+    else:
+        org = report['option_defaults'].get('organization')
+        if org:
+            # org is not supplied, but this report has a default value
+            return t.redirect_to(url_for('report.org', report_name=report_name, organization=org)), None
     org_in_params = request.params.get('organization')
     if org_in_params:
         # organization should only be in the url - let the param overwrite
@@ -72,7 +75,7 @@ def report_view(report_name, organization=None, refresh=False):
         format = options.pop('format')
     else:
         format = None
-    if org_in_options:
+    if organization:
         options['organization'] = organization
     options_html = {}
     c.options = options  # for legacy genshi snippets
