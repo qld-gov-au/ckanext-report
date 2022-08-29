@@ -75,7 +75,7 @@ def report_view(report_name, organization=None, refresh=False):
         format = options.pop('format')
     else:
         format = None
-    if organization:
+    if 'organization' in report['option_defaults']:
         options['organization'] = organization
     options_html = {}
     c.options = options  # for legacy genshi snippets
