@@ -3,11 +3,13 @@ Working examples - simple tag report.
 '''
 
 from ckan import model
-from ckanext.report import lib
+
 try:
     from collections import OrderedDict  # from python 2.7
 except ImportError:
     from sqlalchemy.util import OrderedDict
+
+from ckanext.report import lib
 
 
 def tagless_report(organization, include_sub_organizations=False):
@@ -29,7 +31,7 @@ def tagless_report(organization, include_sub_organizations=False):
     # Find the packages without tags
     q = model.Session.query(model.Package) \
              .outerjoin(model.PackageTag) \
-             .filter(model.PackageTag.id is None)
+             .filter(model.PackageTag.id == None)  # noqa: E711
     if organization:
         q = lib.filter_by_organizations(q, organization,
                                         include_sub_organizations)

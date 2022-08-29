@@ -9,8 +9,9 @@ class MixinPlugin(p.SingletonPlugin):
     # IRoutes
 
     def before_map(self, map):
-        report_ctlr = 'ckanext.report.controllers.pylons_controllers:ReportController'
-        map.connect('report.index', '/report', controller=report_ctlr, action='index')
+        report_ctlr = 'ckanext.report.controllers:ReportController'
+        map.connect('report.index', '/report', controller=report_ctlr,
+                    action='index')
         map.connect('reports', '/report', controller=report_ctlr,
                     action='index')
         map.redirect('/reports', '/report')
@@ -18,6 +19,8 @@ class MixinPlugin(p.SingletonPlugin):
                     action='view')
         map.connect('report', '/report/:report_name', controller=report_ctlr,
                     action='view')
+        map.connect('report-org', '/report/:report_name/:organization',
+                    controller=report_ctlr, action='view')
         map.connect('report.org', '/report/:report_name/:organization',
                     controller=report_ctlr, action='view')
         return map

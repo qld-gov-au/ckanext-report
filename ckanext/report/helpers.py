@@ -16,9 +16,8 @@ def relative_url_for(**kwargs):
     # being an open redirect.
     disallowed_params = set(('controller', 'action', 'anchor', 'host',
                              'protocol', 'qualified'))
-    user_specified_params = [(k, v) for k, v in list(tk.request.params.items())
+    user_specified_params = [(k, v) for k, v in tk.request.params.items()
                              if k not in disallowed_params]
-
     if tk.check_ckan_version(min_version="2.9.0"):
         from flask import request
         args = dict(list(request.args.items())
@@ -29,14 +28,15 @@ def relative_url_for(**kwargs):
         for k, v in list(args.items()):
             if not v:
                 del args[k]
-        return tk.url_for(request.url_rule.rule, **args)
+        return tk.url_for(request.path, **args)
 
     else:
         args = dict(list(tk.request.environ['pylons.routes_dict'].items())
                     + user_specified_params
                     + list(kwargs.items()))
+
         # remove blanks
-        for k, v in list(args.items()):
+        for k, v in args.items():
             if not v:
                 del args[k]
         return tk.url_for(**args)
@@ -88,3 +88,11 @@ def explicit_default_options(report_name):
         if options[key] is True:
             explicit_defaults[key] = 1
     return explicit_defaults
+
+
+def is_ckan_29():
+    """
+    Returns True if using CKAN 2.9+, with Flask and Webassets.
+    Returns False if those are not present.
+    """
+    return tk.check_ckan_version(min_version='2.9.0')

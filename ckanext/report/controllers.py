@@ -3,7 +3,7 @@
 import six
 
 import ckan.plugins.toolkit as t
-from ckanext.report.controllers import report_index, report_view
+from .utils import report_index, report_view
 
 
 class ReportController(t.BaseController):

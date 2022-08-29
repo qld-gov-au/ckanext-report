@@ -7,11 +7,12 @@ import six
 
 from ckan import model
 from ckan.plugins.toolkit import asbool
-from ckanext.report.interfaces import IReport
 try:
     from collections import OrderedDict  # from python 2.7
 except ImportError:
     from sqlalchemy.util import OrderedDict
+
+from ckanext.report.interfaces import IReport
 
 log = logging.getLogger(__name__)
 
@@ -29,8 +30,7 @@ class Report(object):
         missing_required_keys = REPORT_KEYS_REQUIRED - set(report_info_dict.keys())
         assert not missing_required_keys, 'Report info dict missing keys %r: '\
             '%r' % (missing_required_keys, report_info_dict)
-        unknown_keys = set(report_info_dict.keys()) - REPORT_KEYS_REQUIRED - \
-            REPORT_KEYS_OPTIONAL
+        unknown_keys = set(report_info_dict.keys()) - REPORT_KEYS_REQUIRED - REPORT_KEYS_OPTIONAL
         assert not unknown_keys, 'Report info dict has unrecognized keys %r: '\
             '%r' % (unknown_keys, report_info_dict)
         if not report_info_dict['option_defaults']:
