@@ -61,4 +61,4 @@ jobs:
           PASTER_PLUGIN=ckanext-report $CKAN_CLI report initdb
           PASTER_PLUGIN=ckanext-report $CKAN_CLI report generate tagless-datasets
       - name: Run tests
-        run: pytest --ckan-ini=test.ini --cov=ckanext.report --disable-warnings ckanext/report/tests
+        run: pytest -v --ckan-ini=test.ini --cov=ckanext.report --disable-warnings ckanext/report/tests
