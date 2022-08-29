@@ -27,7 +27,7 @@ def view(report_name, organization=None, refresh=False):
         return body
 
 
-report.add_url_rule(u'/report', view_func=index)
+report.add_url_rule(u'/report', 'index', view_func=index)
 report.add_url_rule(u'/reports', 'reports', view_func=redirect_to_index)
 report.add_url_rule(u'/report/<report_name>', view_func=view, methods=('GET', 'POST'))
 report.add_url_rule(u'/report/<report_name>/<organization>', 'org', view_func=view, methods=('GET', 'POST',))
