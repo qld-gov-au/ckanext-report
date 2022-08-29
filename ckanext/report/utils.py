@@ -172,7 +172,6 @@ def report_view(report_name, organization=None, refresh=False):
 def initdb():
     from ckanext.report import model
     model.init_tables()
-    log.info('Report table is setup')
 
 
 def generate(report_list):

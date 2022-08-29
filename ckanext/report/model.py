@@ -65,7 +65,7 @@ class DataCache(object):
     """
 
     def __init__(self, **kwargs):
-        for k, v in list(kwargs.items()):
+        for k, v in kwargs.items():
             setattr(self, k, v)
 
     @classmethod

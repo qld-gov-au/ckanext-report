@@ -88,7 +88,7 @@ def make_csv_from_dicts(rows):
     for row in rows:
         new_headers = set(row.keys()) - headers_set
         headers_set |= new_headers
-        for header in list(row.keys()):
+        for header in row.keys():
             if header in new_headers:
                 headers_ordered.append(header)
     csvwriter.writerow(headers_ordered)

@@ -57,19 +57,30 @@ class ReportCommand(p.toolkit.CkanCommand):
 
         cmd = self.args[0]
         if cmd == 'initdb':
-            utils.initdb()
+            self._initdb()
         elif cmd == 'list':
-            utils.list_reports()
+            self._list()
         elif cmd == 'generate':
             report_list = None
             if len(self.args) == 2:
                 report_list = [s.strip() for s in self.args[1].split(',')]
                 self.log.info("Running reports => %s", report_list)
-            timings = utils.generate(report_list)
-            self.log.info("Report generation complete %s", timings)
+            self._generate(report_list)
         elif cmd == 'generate-for-options':
             message = utils.generate_for_options(self.args[1], self.self.args[2:])
             if message:
                 self.parser.error(message)
         else:
             self.parser.error('Command not recognized: %r' % cmd)
+
+    def _initdb(self):
+        utils.initdb()
+        self.log.info('Report table is setup')
+
+    def _list(self):
+        utils.list_reports()
+
+    def _generate(self, report_list=None):
+
+        timings = utils.generate(report_list)
+        self.log.info("Report generation complete %s", timings)
