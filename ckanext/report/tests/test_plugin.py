@@ -52,23 +52,26 @@ class TestReportPlugin(object):
 
     def test_tagless_report_csv(self, app):
         u"""Test tagless report generation"""
-        dataset1 = factories.Dataset()  # noqa F841
-        dataset2 = factories.Dataset()  # noqa F841
+        org = factories.Organization()
+        dataset1 = factories.Dataset(owner_org=org['id'])  # noqa F841
+        dataset2 = factories.Dataset(owner_org=org['id'])  # noqa F841
 
         res = app.get(u'/report/tagless-datasets?format=csv')
         _assert_status(res, 200)
 
     def test_tagless_report_json(self, app):
         u"""Test tagless report generation"""
-        dataset1 = factories.Dataset()  # noqa F841
-        dataset2 = factories.Dataset()  # noqa F841
+        org = factories.Organization()
+        dataset1 = factories.Dataset(owner_org=org['id'])  # noqa F841
+        dataset2 = factories.Dataset(owner_org=org['id'])  # noqa F841
         res = app.get(u'/report/tagless-datasets?format=json')
         _assert_status(res, 200)
 
     def test_tagless_report_refresh_ok(self, app):
         u"""Test tagless refresh report"""
         user = factories.Sysadmin()
-        dataset = factories.Dataset()  # noqa F841
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])  # noqa F841
         env = {'REMOTE_USER': user['name'].encode('ascii')}
 
         res = app.post('/report/tagless-datasets', extra_environ=env)
@@ -78,4 +81,4 @@ class TestReportPlugin(object):
             _assert_status(res, 200)
         else:
             _assert_status(res, 302)
-            assert res.headers.get('Location') == 'http://localhost:5000/report/tagless-datasets'
+            assert res.headers.get('Location') == 'http://ckan:5000/report/tagless-datasets'
