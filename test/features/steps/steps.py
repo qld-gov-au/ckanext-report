@@ -1,45 +1,57 @@
-from behave import step
+from behave import when, then
 from behaving.personas.steps import *  # noqa: F401, F403
 from behaving.mail.steps import *  # noqa: F401, F403
 from behaving.web.steps import *  # noqa: F401, F403
-from behaving.web.steps.url import when_i_visit_url
-import email
-import quopri
-import requests
 import uuid
-import six
 
 
-@step(u'I get the current URL')
+@when(u'I take a debugging screenshot')
+def debug_screenshot(context):
+    """ Take a screenshot only if debugging is enabled in the persona.
+    """
+    if context.persona and context.persona.get('debug') == 'True':
+        context.execute_steps(u"""
+            When I take a screenshot
+        """)
+
+
+@when(u'I get the current URL')
 def get_current_url(context):
     context.browser.evaluate_script("document.documentElement.clientWidth")
 
 
-@step(u'I go to homepage')
+@when(u'I go to homepage')
 def go_to_home(context):
-    when_i_visit_url(context, '/')
-
-
-@step(u'I go to register page')
-def go_to_register_page(context):
     context.execute_steps(u"""
-        When I go to homepage
-        And I click the link with text that contains "Register"
+        When I visit "/"
     """)
 
 
-@step(u'I log in')
-def log_in(context):
-    assert context.persona
+@when(u'I go to register page')
+def go_to_register_page(context):
     context.execute_steps(u"""
         When I go to homepage
-        And I resize the browser to 1024x2048
-        And I click the link with text that contains "Log in"
+        And I press "Register"
+    """)
+
+
+@when(u'I log in')
+def log_in(context):
+    context.execute_steps(u"""
+        When I go to homepage
+        And I expand the browser height
+        And I press "Log in"
         And I log in directly
     """)
 
 
-@step(u'I log in directly')
+@when(u'I expand the browser height')
+def expand_height(context):
+    # Work around x=null bug in Selenium set_window_size
+    context.browser.driver.set_window_rect(x=0, y=0, width=1024, height=3072)
+
+
+@when(u'I log in directly')
 def log_in_directly(context):
     """
     This differs to the `log_in` function above by logging in directly to a page where the user login form is presented
@@ -47,14 +59,15 @@ def log_in_directly(context):
     :return:
     """
 
-    assert context.persona
+    assert context.persona, "A persona is required to log in, found [{}] in context." \
+        " Have you configured the personas in before_scenario?".format(context.persona)
     context.execute_steps(u"""
         When I attempt to log in with password "$password"
-        Then I should see an element with xpath "//a[@title='Log out']"
+        Then I should see an element with xpath "//*[@title='Log out']/i[contains(@class, 'fa-sign-out')]"
     """)
 
 
-@step(u'I attempt to log in with password "{password}"')
+@when(u'I attempt to log in with password "{password}"')
 def attempt_login(context, password):
     assert context.persona
     context.execute_steps(u"""
@@ -64,14 +77,14 @@ def attempt_login(context, password):
     """.format(password))
 
 
-@step(u'I should see a login link')
+@then(u'I should see the login form')
 def login_link_visible(context):
     context.execute_steps(u"""
         Then I should see an element with xpath "//h1[contains(string(), 'Login')]"
     """)
 
 
-@step(u'I request a password reset')
+@when(u'I request a password reset')
 def request_reset(context):
     assert context.persona
     context.execute_steps(u"""
@@ -82,14 +95,14 @@ def request_reset(context):
     """)
 
 
-@step(u'I fill in "{name}" with "{value}" if present')
+@when(u'I fill in "{name}" with "{value}" if present')
 def fill_in_field_if_present(context, name, value):
     context.execute_steps(u"""
         When I execute the script "field = document.getElementById('field-{0}'); if (field) field.value = '{1}';"
     """.format(name, value))
 
 
-@step(u'I create a resource with name "{name}" and URL "{url}"')
+@when(u'I create a resource with name "{name}" and URL "{url}"')
 def add_resource(context, name, url):
     context.execute_steps(u"""
         When I log in
@@ -103,7 +116,7 @@ def add_resource(context, name, url):
     """.format(name=name, url=url))
 
 
-@step(u'I fill in title with random text')
+@when(u'I fill in title with random text')
 def title_random_text(context):
     assert context.persona
     context.execute_steps(u"""
@@ -111,84 +124,87 @@ def title_random_text(context):
     """.format(uuid.uuid4()))
 
 
-@step(u'I go to dataset page')
+@when(u'I go to dataset page')
 def go_to_dataset_page(context):
-    when_i_visit_url(context, '/dataset')
+    context.execute_steps(u"""
+        When I visit "/dataset"
+    """)
 
 
-@step(u'I go to dataset "{name}"')
+@when(u'I go to dataset "{name}"')
 def go_to_dataset(context, name):
-    when_i_visit_url(context, '/dataset/' + name)
+    context.execute_steps(u"""
+        When I visit "/dataset/{0}"
+        And I take a debugging screenshot
+    """.format(name))
 
 
-@step(u'I edit the "{name}" dataset')
+@when(u'I edit the "{name}" dataset')
 def edit_dataset(context, name):
-    when_i_visit_url(context, '/dataset/edit/{}'.format(name))
+    context.execute_steps(u"""
+        When I visit "/dataset/edit/{0}"
+    """.format(name))
 
 
-@step(u'I go to group page')
+@when(u'I go to group page')
 def go_to_group_page(context):
-    when_i_visit_url(context, '/group')
+    context.execute_steps(u"""
+        When I visit "/group"
+    """)
 
 
-@step(u'I go to organisation page')
+@when(u'I go to organisation page')
 def go_to_organisation_page(context):
-    when_i_visit_url(context, '/organization')
+    context.execute_steps(u"""
+        When I visit "/organization"
+    """)
 
 
-@step(u'I search the autocomplete API for user "{username}"')
+@when(u'I search the autocomplete API for user "{username}"')
 def go_to_user_autocomplete(context, username):
-    when_i_visit_url(context, '/api/2/util/user/autocomplete?q={}'.format(username))
+    context.execute_steps(u"""
+        When I visit "/api/2/util/user/autocomplete?q={0}"
+    """.format(username))
 
 
-@step(u'I go to the user list API')
+@when(u'I go to the user list API')
 def go_to_user_list(context):
-    when_i_visit_url(context, '/api/3/action/user_list')
+    context.execute_steps(u"""
+        When I visit "/api/3/action/user_list"
+    """)
 
 
-@step(u'I go to the "{user_id}" profile page')
+@when(u'I go to the "{user_id}" profile page')
 def go_to_user_profile(context, user_id):
-    when_i_visit_url(context, '/user/{}'.format(user_id))
+    context.execute_steps(u"""
+        When I visit "/user/{0}"
+    """.format(user_id))
 
 
-@step(u'I go to the dashboard')
+@when(u'I go to the dashboard')
 def go_to_dashboard(context):
-    when_i_visit_url(context, '/dashboard')
+    context.execute_steps(u"""
+        When I visit "/dashboard/datasets"
+    """)
 
 
-@step(u'I go to the "{user_id}" user API')
+@when(u'I go to the "{user_id}" user API')
 def go_to_user_show(context, user_id):
-    when_i_visit_url(context, '/api/3/action/user_show?id={}'.format(user_id))
+    context.execute_steps(u"""
+        When I visit "/api/3/action/user_show?id={0}"
+    """.format(user_id))
 
 
-@step(u'I view the "{group_id}" group API "{including}" users')
-def go_to_group_including_users(context, group_id, including):
-    when_i_visit_url(context, r'/api/3/action/group_show?id={}&include_users={}'.format(
-        group_id, including in ['with', 'including']))
+@when(u'I view the "{group_id}" {group_type} API "{including}" users')
+def go_to_group_including_users(context, group_id, group_type, including):
+    if group_type == "organisation":
+        group_type = "organization"
+    context.execute_steps(u"""
+        When I visit "/api/3/action/{1}_show?id={0}&include_users={2}"
+    """.format(group_id, group_type, including in ['with', 'including']))
 
 
-@step(u'I view the "{organisation_id}" organisation API "{including}" users')
-def go_to_organisation_including_users(context, organisation_id, including):
-    when_i_visit_url(context, r'/api/3/action/organization_show?id={}&include_users={}'.format(
-        organisation_id, including in ['with', 'including']))
-
-
-@step(u'I should be able to download via the element with xpath "{expression}"')
-def test_download_element(context, expression):
-    url = context.browser.find_by_xpath(expression).first['href']
-    assert requests.get(url, cookies=context.browser.cookies.all()).status_code == 200
-
-
-@step(u'I should be able to patch dataset "{package_id}" via the API')
-def test_package_patch(context, package_id):
-    url = context.base_url + 'api/action/package_patch'
-    response = requests.post(url, json={'id': package_id}, cookies=context.browser.cookies.all())
-    print("Response from endpoint {} is: {}, {}".format(url, response, response.text))
-    assert response.status_code == 200
-    assert '"success": true' in response.text
-
-
-@step(u'I create a dataset with title "{title}"')
+@when(u'I create a dataset with title "{title}"')
 def create_dataset_titled(context, title):
     context.execute_steps(u"""
         When I visit "/dataset/new"
@@ -207,12 +223,12 @@ def create_dataset_titled(context, title):
     """.format(title=title))
 
 
-@step(u'I create a dataset with license {license} and resource file {file}')
+@when(u'I create a dataset with license {license} and resource file {file}')
 def create_dataset_json(context, license, file):
     create_dataset(context, license, 'JSON', file)
 
 
-@step(u'I create a dataset with license {license} and {file_format} resource file {file}')
+@when(u'I create a dataset with license {license} and {file_format} resource file {file}')
 def create_dataset(context, license, file_format, file):
     assert context.persona
     context.execute_steps(u"""
@@ -232,34 +248,7 @@ def create_dataset(context, license, file_format, file):
     """.format(license=license, file=file, file_format=file_format))
 
 
-@step(u'I should receive a base64 email at "{address}" containing "{text}"')
-def should_receive_base64_email_containing_text(context, address, text):
-    should_receive_base64_email_containing_texts(context, address, text, None)
-
-
-@step(u'I should receive a base64 email at "{address}" containing both "{text}" and "{text2}"')
-def should_receive_base64_email_containing_texts(context, address, text, text2):
-    # The default behaving step does not convert base64 emails
-    # Modified the default step to decode the payload from base64
-    def filter_contents(mail):
-        mail = email.message_from_string(mail)
-        payload = mail.get_payload()
-        payload += "=" * ((4 - len(payload) % 4) % 4)  # do fix the padding error issue
-        payload_bytes = quopri.decodestring(payload)
-        if len(payload_bytes) > 0:
-            payload_bytes += b'='  # do fix the padding error issue
-        if six.PY2:
-            decoded_payload = payload_bytes.decode('base64')
-        else:
-            import base64
-            decoded_payload = six.ensure_text(base64.b64decode(six.ensure_binary(payload_bytes)))
-        print('decoded_payload: ', decoded_payload)
-        return text in decoded_payload and (not text2 or text2 in decoded_payload)
-
-    assert context.mail.user_messages(address, filter_contents)
-
-
-@step(u'I log in and go to admin config page')
+@when(u'I log in and go to admin config page')
 def log_in_go_to_admin_config(context):
     assert context.persona
     context.execute_steps(u"""
@@ -268,19 +257,26 @@ def log_in_go_to_admin_config(context):
     """)
 
 
-@step(u'I go to admin config page')
+@when(u'I go to admin config page')
 def go_to_admin_config(context):
-    when_i_visit_url(context, '/ckan-admin/config')
+    context.execute_steps(u"""
+        When I visit "/ckan-admin/config"
+    """)
 
 
-@step(u'I log out')
+@when(u'I log out')
 def log_out(context):
-    when_i_visit_url(context, '/user/logout')
+    context.execute_steps(u"""
+        When I press the element with xpath "//*[@title='Log out']"
+        Then I should see "Log in"
+    """)
 
 
 # ckanext-report
 
 
-@step(u'I go to my reports page')
+@when(u'I go to my reports page')
 def go_to_reporting_page(context):
-    when_i_visit_url(context, '/dashboard/reporting')
+    context.execute_steps(u"""
+        When I visit "/dashboard/reporting"
+    """)

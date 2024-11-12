@@ -7,10 +7,7 @@ import six
 
 from ckan import model
 from ckan.plugins.toolkit import asbool
-try:
-    from collections import OrderedDict  # from python 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
+from collections import OrderedDict
 
 from ckanext.report.interfaces import IReport
 

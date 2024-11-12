@@ -2,13 +2,20 @@
 ##
 # Install current extension.
 #
-set -e
+set -ex
 
 install_requirements () {
     PROJECT_DIR=$1
     shift
     # Identify the best match requirements file, ignore the others.
-    # If there is one specific to our Python version, use that.
+    # If there is one specific to our CKAN or Python version, use that.
+    for filename_pattern in "$@"; do
+        filename="$PROJECT_DIR/${filename_pattern}-$CKAN_VERSION.txt"
+        if [ -f "$filename" ]; then
+            pip install -r "$filename"
+            return 0
+        fi
+    done
     for filename_pattern in "$@"; do
         filename="$PROJECT_DIR/${filename_pattern}-$PYTHON_VERSION.txt"
         if [ -f "$filename" ]; then
@@ -26,7 +33,9 @@ install_requirements () {
 }
 
 . ${APP_DIR}/bin/activate
-
+if [ "$CKAN_VERSION" = "2.9" ]; then
+    pip install "setuptools>=44.1.0,<71"
+fi
 install_requirements . dev-requirements requirements-dev
 for extension in . `ls -d $SRC_DIR/ckanext-*`; do
     install_requirements $extension requirements pip-requirements
