@@ -4,10 +4,7 @@ These functions are for use by other extensions for their reports.
 from datetime import datetime
 import six
 from six.moves import cStringIO as StringIO, zip
-try:
-    from collections import OrderedDict  # from python 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
+from collections import OrderedDict
 
 import ckan.plugins as p
 from ckan.plugins.toolkit import config

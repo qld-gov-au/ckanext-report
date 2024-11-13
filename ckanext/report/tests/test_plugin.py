@@ -1,15 +1,11 @@
 import pytest
-import six
 from ckan.plugins import toolkit as tk
 from ckan.tests import factories
 import ckanext.report.model as report_model
 
 
 def _assert_in_body(string, response):
-    if six.PY2:
-        assert string in response.body.decode('utf8')
-    else:
-        assert string in response.body
+    assert string in response.body
 
 
 def _assert_status(res, code_int):
