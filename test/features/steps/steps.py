@@ -61,10 +61,11 @@ def log_in_directly(context):
 
     assert context.persona, "A persona is required to log in, found [{}] in context." \
         " Have you configured the personas in before_scenario?".format(context.persona)
+    logout_link = "*[@title='Log out' or @data-bs-title='Log out']/i[contains(@class, 'fa-sign-out')]"
     context.execute_steps(u"""
         When I attempt to log in with password "$password"
-        Then I should see an element with xpath "//*[@title='Log out']/i[contains(@class, 'fa-sign-out')]"
-    """)
+        Then I should see an element with xpath "//{}"
+    """.format(logout_link))
 
 
 @when(u'I attempt to log in with password "{password}"')
@@ -98,7 +99,7 @@ def request_reset(context):
 @when(u'I fill in "{name}" with "{value}" if present')
 def fill_in_field_if_present(context, name, value):
     context.execute_steps(u"""
-        When I execute the script "field = document.getElementById('field-{0}'); if (field) field.value = '{1}';"
+        When I execute the script "field = $('#{0}'); if (!field.length) field = $('[name={0}]'); if (!field.length) field = $('#field-{0}'); field.val('{1}'); field.keyup();"
     """.format(name, value))
 
 
@@ -118,10 +119,24 @@ def add_resource(context, name, url):
 
 @when(u'I fill in title with random text')
 def title_random_text(context):
-    assert context.persona
     context.execute_steps(u"""
-        When I fill in "title" with "Test Title {0}"
-    """.format(uuid.uuid4()))
+        When I fill in title with random text starting with "Test Title "
+    """)
+
+
+@when(u'I fill in title with random text starting with "{prefix}"')
+def title_random_text_with_prefix(context, prefix):
+    random_text = str(uuid.uuid4())
+    title = prefix + random_text
+    name = prefix.lower().replace(" ", "-") + random_text
+    assert context.persona
+    context.execute_steps(f"""
+        When I fill in "title" with "{title}"
+        And I fill in "name" with "{name}" if present
+        And I set "last_generated_title" to "{title}"
+        And I set "last_generated_name" to "{name}"
+        And I take a debugging screenshot
+    """)
 
 
 @when(u'I go to dataset page')
@@ -267,7 +282,7 @@ def go_to_admin_config(context):
 @when(u'I log out')
 def log_out(context):
     context.execute_steps(u"""
-        When I press the element with xpath "//*[@title='Log out']"
+        When I press the element with xpath "//*[@title='Log out' or @data-bs-title='Log out']"
         Then I should see "Log in"
     """)
 
