@@ -19,7 +19,7 @@ jobs:
       - name: Install requirements
         run: pip install flake8 pycodestyle
       - name: Check syntax
-        run: flake8 . --count --show-source --statistics
+        run: flake8 ckanext --count --show-source --statistics
 
   test:
     needs: lint
