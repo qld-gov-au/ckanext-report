@@ -8,10 +8,7 @@ from sqlalchemy import types, Table, Column, Index, MetaData
 from sqlalchemy.orm import mapper
 
 from ckan import model
-try:
-    from collections import OrderedDict  # from python 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
+from collections import OrderedDict
 
 log = logging.getLogger(__name__)
 
@@ -93,14 +90,8 @@ class DataCache(object):
             # Use OrderedDict instead of dict, so that the order of the columns
             # in the data is preserved from the data when it was written (assuming
             # it was written as an OrderedDict in the report's code).
-            try:
-                # Python 2.7's json library has object_pairs_hook
-                import json
-                value = json.loads(value, object_pairs_hook=OrderedDict)
-            except TypeError:  # Untested
-                # Python 2.4-2.6
-                import simplejson as json
-                value = json.loads(value, object_pairs_hook=OrderedDict)
+            import json
+            value = json.loads(value, object_pairs_hook=OrderedDict)
         return value, item.created
 
     @classmethod

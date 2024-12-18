@@ -25,10 +25,8 @@ TODO:
 
 | CKAN version    | Compatibility       |
 | --------------- | ------------------- |
-| 2.6 and earlier | yes                 |
-| 2.7             | yes                 |
-| 2.8             | yes                 |
-| 2.9-py2         | yes                 |
+| 2.8 and earlier | no                  |
+| 2.9-py2         | no                  |
 | 2.9  (py3)      | yes                 |
 | 2.10 (py3)      | yes                 |
 
