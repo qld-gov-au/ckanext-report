@@ -4,17 +4,16 @@ import datetime
 import logging
 import json
 
-from sqlalchemy import types, Table, Column, Index, MetaData
-from sqlalchemy.orm import mapper
+from sqlalchemy import types, Table, Column, Index
+from sqlalchemy.ext.declarative import declarative_base
 
 from ckan import model
 from collections import OrderedDict
+from ckan.model.meta import metadata
 
 log = logging.getLogger(__name__)
 
 __all__ = ['DataCache', 'data_cache_table', 'init_tables']
-
-metadata = MetaData()
 
 data_cache_table = Table(
     'data_cache', metadata,
@@ -28,8 +27,10 @@ data_cache_table = Table(
 Index('idx_data_cache_object_id_key', data_cache_table.c.object_id,
       data_cache_table.c.key)
 
+Base = declarative_base(metadata=metadata)
 
-class DataCache(object):
+
+class DataCache(Base):
     """
     DataCache provides simple caching of pre-calculated values for queries that
     would take too long to run in real time.  It allows background tasks to
@@ -60,6 +61,7 @@ class DataCache(object):
     which happens to be refreshed regularly, so suitable for storage in the
     main application db, rather than any volatile external cache.
     """
+    __table__ = data_cache_table
 
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
@@ -122,9 +124,6 @@ class DataCache(object):
         log.debug('Cache save: %s/%s', object_id, key)
         model.Session.flush()
         return item.created
-
-
-mapper(DataCache, data_cache_table)
 
 
 def init_tables():
