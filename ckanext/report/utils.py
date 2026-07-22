@@ -70,6 +70,9 @@ def report_view(report_name, organization=None, refresh=False):
 
     # options
     options = Report.add_defaults_to_options(request.form, report['option_defaults'])
+    csrf_field_name = t.config.get("WTF_CSRF_FIELD_NAME")
+    if csrf_field_name:
+        options.pop(csrf_field_name, None)
     option_display_params = {}
     if 'format' in options:
         format = options.pop('format')
