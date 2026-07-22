@@ -8,10 +8,7 @@ from .interfaces import IReport
 from .logic.action import get as action_get, update as action_update
 from .logic.auth import get as auth_get, update as auth_update
 
-if h.is_ckan_29():
-    from .plugin_mixins.flask_plugin import MixinPlugin
-else:
-    from .plugin_mixins.pylons_plugin import MixinPlugin
+from .plugin_mixins.flask_plugin import MixinPlugin
 
 
 class ReportPlugin(MixinPlugin, p.SingletonPlugin):
@@ -34,7 +31,6 @@ class ReportPlugin(MixinPlugin, p.SingletonPlugin):
             'report__organization_list': h.organization_list,
             'report__render_datetime': h.render_datetime,
             'report__explicit_default_options': h.explicit_default_options,
-            'is_ckan_29': h.is_ckan_29,
         }
 
     # IActions

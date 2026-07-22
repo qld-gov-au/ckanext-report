@@ -48,7 +48,13 @@ def log_in(context):
 @when(u'I expand the browser height')
 def expand_height(context):
     # Work around x=null bug in Selenium set_window_size
-    context.browser.driver.set_window_rect(x=0, y=0, width=1024, height=3072)
+    context.browser.driver.set_window_rect(x=0, y=0, width=1366, height=3072)
+
+
+@when(u'I narrow the browser to mobile width')
+def narrow_width(context):
+    # Work around x=null bug in Selenium set_window_size
+    context.browser.driver.set_window_rect(x=0, y=0, width=900, height=3072)
 
 
 @when(u'I log in directly')
@@ -61,11 +67,10 @@ def log_in_directly(context):
 
     assert context.persona, "A persona is required to log in, found [{}] in context." \
         " Have you configured the personas in before_scenario?".format(context.persona)
-    logout_link = "*[@title='Log out' or @data-bs-title='Log out']/i[contains(@class, 'fa-sign-out')]"
     context.execute_steps(u"""
         When I attempt to log in with password "$password"
-        Then I should see an element with xpath "//{}"
-    """.format(logout_link))
+        Then I should see an element with xpath "//*[@title='Log out' or @data-bs-title='Log out']/i[contains(@class, 'fa-sign-out')]"
+    """)
 
 
 @when(u'I attempt to log in with password "{password}"')
@@ -100,7 +105,7 @@ def request_reset(context):
 def fill_in_field_if_present(context, name, value):
     context.execute_steps(u"""
         When I execute the script "field = $('#{0}'); if (!field.length) field = $('[name={0}]'); if (!field.length) field = $('#field-{0}'); field.val('{1}'); field.keyup();"
-    """.format(name, value))
+    """.format(name, value.replace("'", r"\'")))
 
 
 @when(u'I create a resource with name "{name}" and URL "{url}"')
@@ -157,7 +162,8 @@ def go_to_dataset(context, name):
 @when(u'I edit the "{name}" dataset')
 def edit_dataset(context, name):
     context.execute_steps(u"""
-        When I visit "/dataset/edit/{0}"
+        When I go to dataset "{0}"
+        And I press the element with xpath "//div[contains(@class, 'action')]//a[contains(@href, '/dataset/edit/')]"
     """.format(name))
 
 
@@ -284,6 +290,13 @@ def log_out(context):
     context.execute_steps(u"""
         When I press the element with xpath "//*[@title='Log out' or @data-bs-title='Log out']"
         Then I should see "Log in"
+    """)
+
+
+@when(u'I submit the main form')
+def submit_form(context):
+    context.execute_steps("""
+        When I press the element with xpath "//div[@id='content']//button[contains(@class, 'btn-primary')]"
     """)
 
 
