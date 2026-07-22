@@ -1,6 +1,9 @@
+# encoding: utf-8
+
 import pytest
 from ckan.plugins import toolkit as tk
 from ckan.tests import factories
+
 import ckanext.report.model as report_model
 
 
@@ -65,16 +68,15 @@ class TestReportPlugin(object):
 
     def test_tagless_report_refresh_ok(self, app):
         u"""Test tagless refresh report"""
-        user = factories.Sysadmin()
         org = factories.Organization()
         dataset = factories.Dataset(owner_org=org['id'])  # noqa F841
-        env = {'REMOTE_USER': user['name'].encode('ascii')}
-
-        res = app.post('/report/tagless-datasets', extra_environ=env)
-
-        # for CKAN >= 2.9, the response is not a redirect
-        if tk.check_ckan_version(min_version="2.9.0"):
-            _assert_status(res, 200)
+        if tk.check_ckan_version(min_version="2.10"):
+            user = factories.SysadminWithToken()
+            headers = {"Authorization": user["token"]}
+            res = app.post(url='/report/tagless-datasets', headers=headers)
         else:
-            _assert_status(res, 302)
-            assert res.headers.get('Location') == 'http://ckan:5000/report/tagless-datasets'
+            user = factories.Sysadmin()
+            env = {'REMOTE_USER': user['name'].encode('ascii')}
+            res = app.post('/report/tagless-datasets', extra_environ=env)
+
+        _assert_status(res, 200)
