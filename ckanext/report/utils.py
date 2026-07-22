@@ -62,14 +62,14 @@ def report_view(report_name, organization=None, refresh=False):
         if org:
             # org is not supplied, but this report has a default value
             return t.redirect_to(url_for('report.org', report_name=report_name, organization=org)), None
-    org_in_params = request.params.get('organization')
+    org_in_params = request.form.get('organization')
     if org_in_params:
         # organization should only be in the url - let the param overwrite
         # the url.
         return t.redirect_to(url_for('report.org', report_name=report_name, organization=org_in_params)), None
 
     # options
-    options = Report.add_defaults_to_options(request.params, report['option_defaults'])
+    options = Report.add_defaults_to_options(request.form, report['option_defaults'])
     option_display_params = {}
     if 'format' in options:
         format = options.pop('format')
@@ -98,7 +98,7 @@ def report_view(report_name, organization=None, refresh=False):
     # Alternative way to refresh the cache - not in the UI, but is
     # handy for testing
     try:
-        refresh = t.asbool(request.params.get('refresh'))
+        refresh = t.asbool(request.form.get('refresh'))
         if 'refresh' in options:
             options.pop('refresh')
     except ValueError:

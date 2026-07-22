@@ -16,7 +16,7 @@ def relative_url_for(**kwargs):
     # being an open redirect.
     disallowed_params = set(('controller', 'action', 'anchor', 'host',
                              'protocol', 'qualified'))
-    user_specified_params = [(k, v) for k, v in tk.request.params.items()
+    user_specified_params = [(k, v) for k, v in tk.request.form.items()
                              if k not in disallowed_params]
     if tk.check_ckan_version(min_version="2.9.0"):
         from flask import request
