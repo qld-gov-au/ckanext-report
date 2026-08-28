@@ -5,4 +5,4 @@
 
 ckanext/report/i18n/_reused_translations.pot
 .docker/Dockerfile.ckan
-
+docker-compose.yml
